@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js"
+	xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+  <title th:text="#{app.title}">-Enquiries-</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" type="text/css" th:href="@{css/main.css}"/>
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+  <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+  <script th:src="@{js/jquery.sticky-kit.js}"></script>
+    
+  <style id="jsbin-css">
+	  .fakeimg {height: 200px; background: #aaa;}
+	  html, body, #map-canvas {height: 400px; width: 100%; padding: 10px}
+	  button {margin: 0 0 10px;}
+	  .btn-group-xs > .btn, .btn-xs {padding  : .4rem .4rem; font-size  : .600rem; line-height  : .5;
+    	border-radius : .2rem;}     
+  </style>
+  
+</head>
+<body>
+<nav class="navbar navbar-expand-sm bg-light navbar-light sticky-top">
+
+ 	<ul class="navbar-nav">
+       <li class="nav-item">
+        <h4> Enquiry</h4>
+      </li>
+   </ul>	   
+	 
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  
+  <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
+  
+  <div style="margin-top: 5px; padding: 0px 0px 0px 0px;">
+     <span style="color: brown" class="mr-sm-2">You are logged in as:</span>
+     <span style="color: brown" class="mr-sm-2"> demo@demo.com</span>
+     <span style="color: brown" class="mr-sm-2"> privileges: </span>
+     <span style="color: brown" class="mr-sm-2"> User</span>
+  </div>
+   <a href="#" class="btn btn-outline-success btn-sm ml-sm-2" role="button">Sign off</a>
+   <a href="#" class="btn btn-outline-secondary btn-sm ml-sm-2" role="button">User / Admin Page</a>
+  
+  </div>  
+</nav>
+
+<div class="container" style="margin-top:30px">
+  <div class="row">
+    <div class="col-sm-2">
+        
+  <div style="font-size:14px" class="mt-2">   	
+	 	  
+      <p style="margin-bottom: 0px; text-align: center;">Enquiries finished:</p>
+      <p style="color: #808080; text-align: center;">2954</p>
+      
+      <p style="margin-bottom: 0px; text-align: center;">Enquiries waiting:</p>
+      <p style="color: red; text-align: center;">3</p>
+      
+      <p style="margin-bottom: 0px; text-align: center;">Enquiries in progress:</p>
+      <p style="margin-bottom: 40px;color: blue; text-align: center;">5</p>
+      
+      <p style="margin-bottom: 0px; text-align: center;">Enquiries closed by you:</p>
+      <p style="color: #808080; text-align: center;">154</p>
+      
+      <p style="margin-bottom: 0px; text-align: center;">Your enquiries in progress:</p>
+      <p style="color: blue; text-align: center;">4</p>
+      
+    </div>
+   </div> 
+    
+    <div class="col-md-10">
+    
+    	 <div class="d-flex justify-content-start bg-default mb-1">
+            <div class="p-0 bg-default flex-fill" >
+    
+           	   <div class="float-left pr-2 pb-0 mt-3 flex-fill">
+                 <div class="form-group flex-fill">
+                   <h5 style="text-align: center; color: darkblue;">Manage Enquiry</h5>
+                 </div>
+               </div>
+
+      		  <div class="float-right pr-0 flex-fill">
+                 <div class="form-group flex-fill">
+                  <form action="#">
+                      <div class="form-group">
+                        <input type="hidden" class="form-control" id="usr" name="enquiryId">
+                      </div>
+                      <button type="submit" class="btn btn-sm btn-outline-primary btn-block">Close / Re-open</button>
+                    </form>
+                 </div>
+             </div>
+             
+             <div class="float-right pr-2 flex-fill">
+                 <div class="form-group flex-fill">
+                    <form action="#">
+                      <div class="form-group">
+                        <input type="hidden" class="form-control" id="usr" name="enquiryId">
+                      </div>
+                      <button type="submit" class="btn btn-sm btn-outline-primary btn-block">Take / Abandon</button>
+                    </form>
+                 </div>
+              </div>
+    
+    	</div>
+    </div>  
+      
+      
+     <table class="table table-sm table-borderless">
+     	 <tbody>
+          <tr>
+            <td colspan="2">
+            	<div class="d-flex justify-content-start bg-default mb-1">
+                  <div class="p-0 bg-default" >
+                      <div class="float-left pr-2"><strong class="pr-2">Enquiry ID:</strong><span>1475</span></div>
+                  </div>
+                </div>
+            </td>
+            <td>
+            </td>
+          </tr>
+    	  <tr>
+            <td colspan="2">
+				<div class="d-flex justify-content-start bg-default mb-1">
+                  <div class="p-0 bg-default">
+                      <div class="float-left pr-2"><strong class="pr-2">Customer's name:</strong><span>Jon Doe</span></div>
+                  </div>
+                </div>
+            </td>
+            <td>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2">
+			 <div class="d-flex justify-content-start bg-default mb-1">
+                <div class="p-0 bg-default" >
+                    <div class="float-left pr-2"><strong class="pr-2">Customer's email:</strong><span>doe@gmail.com</span></div>
+                </div>
+              </div>
+            </td>
+            <td>
+            </td>
+         </tr>
+         <tr>
+            <td>
+				<div class="p-0 bg-info flex-fill">
+                      <div class="float-left pr-2"><strong class="pr-2">Enquiry type:</strong><span>Customised maps</span></div>
+                  </div>
+            </td>
+            <td>
+             	<div class="p-0 bg-info flex-fill">
+                    <div class="float-left pr-2"><strong class="pr-2">Created:</strong><span>01.07.2018 15.36</span></div>
+                </div>         
+            </td>
+         </tr>
+         <tr>
+            <td>
+				<div class="p-0 bg-info flex-fill">
+                  <div class="float-left pr-2"><strong class="pr-2">Status:</strong><span>in progress</span></div>
+              </div>
+            </td>
+            <td>
+            	<div class="p-0 bg-info flex-fill">
+                  <div class="float-left pr-2"><strong class="pr-2">being delt by:</strong>
+                  
+                  <div class="float-right pr-0">
+                  	<ul>
+                    	<li>Piotr (piotr@gmail.com)</li>
+                        <li>Martin (martin@gmail.com)</li>
+                    </ul>
+                  </div>			
+                </div>
+              </div>
+            </td>
+         </tr>
+         <tr>
+            <td>
+				 <div class="p-0 bg-info flex-fill">
+                    <div class="float-left pr-2"><strong class="pr-2">Closed:</strong><span>----------</span></div>
+                </div>
+            </td>
+            <td>
+            	  <div class="p-0 bg-info flex-fill">
+                    <div class="float-left pr-2"><strong class="pr-2">by:</strong><span>----------</span></div>
+                </div>
+            </td>
+         </tr>
+         <tr>
+            <td>
+
+            </td>
+            <td>
+            
+            </td>
+         </tr>
+         
+	</table>  
+      
+  <div class="mt-5 mb-3">
+    <div class="d-flex justify-content-start bg-default mb-1">
+       <div class="p-0 bg-default" >
+       	<strong class="pr-2">Enquiry message:</strong>
+  	   </div>
+    </div>
+    
+    <div class="d-flex justify-content-start bg-default mb-1">
+       <div class="p-2 bg-default" >
+       Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Typi non habent claritatem insitam; est usus legentis in iis qui facit eorum claritatem. Investigationes demonstraverunt lectores legere me lius quod ii legunt saepius.
+       </div>
+    </div>
+  </div>
+ 
+ 	<div class="mb-4">
+ 	 <div class="d-flex justify-content-start bg-default mb-1">
+       <div class="p-0 bg-default" >
+       	<strong class="pr-2">Area of interest:</strong>
+  	   </div>
+    </div>
+ 	
+ 	<div id="map" class="mt-1" style="width:100%;height:400px;">
+      	<button onclick="drawRec();">Draw Rectangle</button>
+		<button onclick="drawPolygon();">Draw Polygon</button>
+		<div id="map-canvas"></div>
+    </div>
+  
+    <div class="mb-3">
+
+	<div class="col-msm-9 table-responsive">
+		
+        <div class="d-flex justify-content-start bg-default mb-2">
+           <div class="p-0 bg-default" >
+            <strong class="pr-2">Attachements:</strong>
+           </div>
+        </div>
+        
+		<table class="table table-sm table-borderless">
+			<tbody>
+				<tr th:each="file, rowStat: ${files}">
+			        <td th:text="${rowStat.count}">1</td>
+					<td th:text="${file.filename}">File-Name</td>
+			        <td><a th:href="${file.url}">Download</a></td>
+			    </tr>
+                <tr>
+			        <td>2</td>
+					<td>File-Name</td>
+			        <td><a>Download</a></td>
+			    </tr>
+                <tr>
+			        <td>3</td>
+					<td>File-Name</td>
+			        <td><a>Download</a></td>
+			    </tr>
+			</tbody>
+		</table>
+        <div class="mt-3"></div>
+		<div>
+			<a href="/" class="btn btn-outline-info btn-block" role="button">Back to Enquiry List</a>
+		</div>
+	</div>
+	 
+    
+    </div>
+      
+  </div>
+</div>
+</div>
+
+<div class="mt-3"></div>
+<div class="jumbotron jumbotron-fluid text-center" style="margin-bottom:0; padding:10px; height: 50px;">
+  <p>Footer</p>
+</div>
+
+	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=drawing&key=AIzaSyCbeTjn_d4C-OFFJoRbmkfNfvyc7QjkAoM">
+	</script>
+	<script id="jsbin-javascript">
+		var map;
+		var drawingManager = new google.maps.drawing.DrawingManager();
+		var infoWindow=new google.maps.InfoWindow();
+		function initialize() {
+		    var mapOptions = {
+		        center: new google.maps.LatLng(53.395032, -1.921502),
+		        zoom: 9
+		    };
+		    map = new google.maps.Map(document.getElementById('map-canvas'),
+		    mapOptions);
+		    
+		}
+	
+		function drawRec() {
+		// Checking any Whether any drawing tool is available.If yes, disabling it.
+				if (drawingManager.getMap()) {
+					drawingManager.setMap(null);
+				}
+		
+				//Setting options for the Drawing Tool. In our case, enabling Polygon shape.
+				drawingManager.setOptions({
+					drawingMode : google.maps.drawing.OverlayType.RECTANGLE,
+					drawingControl : true,
+					drawingControlOptions : {
+						position : google.maps.ControlPosition.TOP_CENTER,
+						drawingModes : [ google.maps.drawing.OverlayType.RECTANGLE ]
+					},
+					rectangleOptions : {
+						strokeColor : '#6c6c6c',
+						strokeWeight : 3.5,
+						fillColor : '#926239',
+						fillOpacity : 0.6,
+		                editable: true,
+		              draggable: true
+					}	
+				});
+				// Loading the drawing Tool in the Map.
+				drawingManager.setMap(map);
+		}
+		
+		function drawPolygon() {
+		//Checking any Whether any drawing tool is available.If yes, disabling it.
+				if (drawingManager.getMap()) {
+					drawingManager.setMap(null);
+				}
+				//Setting options for the Drawing Tool. In our case, enabling Polygon shape.
+				drawingManager.setOptions({
+					drawingMode : google.maps.drawing.OverlayType.POLYGON,
+					drawingControl : true,
+					drawingControlOptions : {
+						position : google.maps.ControlPosition.TOP_CENTER,
+						drawingModes : [ google.maps.drawing.OverlayType.POLYGON ]
+					},
+					polygonOptions : {
+						strokeColor : '#6c6c6c',
+						strokeWeight : 3.5,
+						fillColor : '#926239',
+						fillOpacity : 0.6
+					}	
+				});
+				// Loading the drawing Tool in the Map.
+				drawingManager.setMap(map);
+		  		google.maps.event.addListener(drawingManager,'polygoncomplete',function(polygon){ var content;
+					var vert = polygon.getPath();
+		            var contents = '<b>Region Name : </b><input type="text" size="20" id="region-name"/><br/><b>Description : </b><textarea id="region-desc" cols="20" rows="3"></textarea><br/><input id="save-region" type="button" value="Save Region"/><input id="delete-region" type="button" value="Remove Region"/><br/>-------CO-ORDINATES------------<br/>';
+					var bounds = new google.maps.LatLngBounds();
+						vert.forEach(function(xy, i) {
+		                    //6 digit is enough to hold any spatial application.
+		                  content = 'Lat :_: ' + xy.lat().toFixed(6) + ', Lng :_: ' + xy.lng().toFixed(6) + '<br/>';
+							bounds.extend(xy);
+		                    contents +=content;});
+					infoWindow.setContent(contents);
+					infoWindow.setPosition(bounds.getCenter());
+					drawingManager.setDrawingMode(null);
+					infoWindow.open(map);
+		        });
+		}
+	
+		google.maps.event.addDomListener(window, 'load', initialize);
+	</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
