@@ -1,0 +1,44 @@
+	html, body, #map-canvas {height: 400px; width: 100%; padding: 10px}
+	button {margin: 0 0 10px;}
+	
+	.fakeimg {height: 200px; width: 100%; background: #aaa;}
+	.btn-group-xs > .btn, .btn-xs {padding  : .5rem .5rem; font-size  : .800rem; line-height  : .5;	border-radius : .2rem;} 
+	
+	#table-cell {text-align: center;}
+	#table-cell-files {text-align: center; font-size: 14px;}
+	#table-cell-users {text-align: center; font-size: 14px; color: navy;}
+	#form-errors {color: red; font-size: 15px;}
+	#forgot {text-decoration: none;}
+	.collapsing {
+	    .collapsing {
+	    -webkit-transition: all .0s ease-out;
+	    -o-transition: all .0s ease-out;
+	    transition: all .0s ease-out;
+	}
+	
+	#spinner {position: fixed; top: 50%; left: 50%; margin-left: -50px; margin-top: -50px; 
+		text-align:center; z-index:1234; overflow: auto; width: 100px; height: 102px;}
+	
+	.btn-link {color: black; border: none; text-decoration: none !important;}
+	
+	#map height: 100%;
+	
+	#panel { width: 100%; font-family: Arial, sans-serif;  font-size: 13px;  float: right;  margin: 10px;}
+	#color-palette {clear: both;}
+	.color-button {width: 18px; height: 18px; font-size: 0; margin: 0 px; float: right; cursor: pointer; margin-top: 8px}
+	#delete-button { /* margin-top: 15px;*/  float: right;}
+	
+	body {
+    font-family: sans-serif;
+    font-size: 12px;
+	}
+	 
+	@page{
+	 
+	    margin-top:3.3cm;
+	    margin-left:2cm;
+	    margin-right:2cm;
+	    margin-bottom:3.3cm;
+	 
+	    size: A4 landscape;
+	}

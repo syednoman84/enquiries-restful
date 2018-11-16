@@ -1,6 +1,8 @@
 package com.latidude99.model;
 
 import java.io.Serializable;
+import java.sql.Date;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
+import javax.persistence.Transient;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -31,11 +34,8 @@ public class User implements Serializable{
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private long id;
 	
-//	@NotEmpty(message = "{com.latidude99.model.User.name.NotEmpty}")
+	@NotEmpty(message = "{com.latidude99.model.User.name.NotEmpty}")
 	private String name;
-	
-//	@NotEmpty(message = "{com.latidude99.model.User.lastName.NotEmpty}")
-	private String lastName;
 	
 	@NotEmpty(message = "{com.latidude99.model.User.email.NotEmpty}")
 	@Email(message = "{com.latidude99.model.User.email.Email}")
@@ -44,16 +44,28 @@ public class User implements Serializable{
 	@Size(min=6, message = "{com.latidude99.model.User.password.Size}")
 	private String password;
 	
+	@Transient
+	@Size(min=6, message = "{com.latidude99.model.User.password.Size}")
+	private String passwordNew;
+	
 	@Column(columnDefinition="BOOLEAN DEFAULT false")
 	private boolean enabled;
 	
-	private String confirmationToken;
+	@Column(columnDefinition="BOOLEAN DEFAULT false")
+	private boolean blocked;
+	
+	private String activationToken;
+	
+	private String resetToken;
+	
 	private ZonedDateTime registered;
 	
 	@ManyToMany(cascade=CascadeType.PERSIST, fetch=FetchType.EAGER)
 	private Set<UserRole> roles = new HashSet<>();
 	
-	@ManyToMany
+	@ManyToMany(mappedBy = "progressUser",
+			cascade=CascadeType.PERSIST, 
+			fetch=FetchType.EAGER)
     private List<Enquiry> enquiriesProgress = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "closingUser", 
@@ -63,17 +75,20 @@ public class User implements Serializable{
 	private List<Enquiry> enquiriesClosed = new ArrayList<>();
 	
 	
-/*
+
 	@PrePersist
 	protected void onCreate() {
 		registered = ZonedDateTime.now();
 	  }
 
+	
+	//to save in DB
 	public void addEnquiryProgress(Enquiry enquiry) {
-        enquiry.setProgressUser(this);
+//        enquiry.getProgressUser().put(Date.from(Instant.now()), this);
         getEnquiriesProgress().add(enquiry);
     }
-	
+
+/*	
 	public void addAllEnquiriesProgress(List<Enquiry> enquiries) {
 		enquiries.forEach(enquiry -> enquiry.setUser(this));
         getEnquiriesProgress().addAll(enquiries);
@@ -86,14 +101,42 @@ public class User implements Serializable{
 	public long getId() {
 		return id;
 	}
-
-
-
+	
 	public void setId(long id) {
 		this.id = id;
 	}
+	
+	public String getResetToken() {
+		return resetToken;
+	}
 
 
+	public void setResetToken(String resetToken) {
+		this.resetToken = resetToken;
+	}
+
+	public boolean isBlocked() {
+		return blocked;
+	}
+
+
+	public void setBlocked(boolean blocked) {
+		this.blocked = blocked;
+	}
+
+
+	
+	public String getPasswordNew() {
+		return passwordNew;
+	}
+
+
+	public void setPasswordNew(String passwordNew) {
+		this.passwordNew = passwordNew;
+	}
+
+
+	
 
 	public String getName() {
 		return name;
@@ -107,18 +150,7 @@ public class User implements Serializable{
 
 
 
-	public String getLastName() {
-		return lastName;
-	}
-
-
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-
-
+	
 	public String getEmail() {
 		return email;
 	}
@@ -155,14 +187,14 @@ public class User implements Serializable{
 
 
 
-	public String getConfirmationToken() {
-		return confirmationToken;
+	public String getActivationToken() {
+		return activationToken;
 	}
 
 
 
-	public void setConfirmationToken(String confirmationToken) {
-		this.confirmationToken = confirmationToken;
+	public void setActivationToken(String activationToken) {
+		this.activationToken = activationToken;
 	}
 
 
@@ -219,13 +251,12 @@ public class User implements Serializable{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((confirmationToken == null) ? 0 : confirmationToken.hashCode());
+		result = prime * result + ((activationToken == null) ? 0 : activationToken.hashCode());
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		result = prime * result + (enabled ? 1231 : 1237);
 		result = prime * result + ((enquiriesClosed == null) ? 0 : enquiriesClosed.hashCode());
 		result = prime * result + ((enquiriesProgress == null) ? 0 : enquiriesProgress.hashCode());
 		result = prime * result + (int) (id ^ (id >>> 32));
-		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((password == null) ? 0 : password.hashCode());
 		result = prime * result + ((registered == null) ? 0 : registered.hashCode());
@@ -244,10 +275,10 @@ public class User implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
-		if (confirmationToken == null) {
-			if (other.confirmationToken != null)
+		if (activationToken == null) {
+			if (other.activationToken != null)
 				return false;
-		} else if (!confirmationToken.equals(other.confirmationToken))
+		} else if (!activationToken.equals(other.activationToken))
 			return false;
 		if (email == null) {
 			if (other.email != null)
@@ -267,11 +298,6 @@ public class User implements Serializable{
 		} else if (!enquiriesProgress.equals(other.enquiriesProgress))
 			return false;
 		if (id != other.id)
-			return false;
-		if (lastName == null) {
-			if (other.lastName != null)
-				return false;
-		} else if (!lastName.equals(other.lastName))
 			return false;
 		if (name == null) {
 			if (other.name != null)
@@ -300,8 +326,8 @@ public class User implements Serializable{
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", name=" + name + ", lastName=" + lastName + ", email=" + email + ", password="
-				+ password + ", enabled=" + enabled + ", confirmationToken=" + confirmationToken + ", registered="
+		return "User [id=" + id + ", name=" + name + ", email=" + email + ", password="
+				+ password + ", enabled=" + enabled + ", activationToken=" + activationToken + ", registered="
 				+ registered + ", roles=" + roles + ", enquiriesProgress=" + enquiriesProgress.size() + ", enquiriesClosed="
 				+ enquiriesClosed.size() + "]";
 	}

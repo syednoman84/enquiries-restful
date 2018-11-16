@@ -1,355 +1,471 @@
 package com.latidude99.web.controller;
-/*
+
+import java.io.IOException;
 import java.security.Principal;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-*/
 
-//@Controller
-//@ControllerAdvice
+import com.latidude99.model.Attachment;
+import com.latidude99.model.Enquiry;
+import com.latidude99.model.User;
+import com.latidude99.service.EmailService;
+import com.latidude99.service.EnquiryService;
+import com.latidude99.service.UserService;
+import com.latidude99.util.EnquiryListWrapper;
+import com.latidude99.util.FormBean;
+import com.latidude99.util.PdfCreator;
+
+
+@Controller
 public class EnquiryController {
-//	private static final Logger logger = LoggerFactory.getLogger(EnquiryController.class);
-	private static final String DEFAULT_ROLE = "ROLE_USER";
-	private static final String ADMIN_ROLE = "ROLE_ADMIN";
+	private static final Logger logger = LoggerFactory.getLogger(EnquiryController.class);
+	private final String baseUrl = "http://localhost:8080/"; // development
+//	private final String baseUrl = "http://enquiry.latidude99.com/"; // production
+	
+	@Autowired
+	UserService userService;
+	
+	@Autowired
+	EnquiryService enquiryService;
+	
+	@Autowired
+	EmailService emailService;
+		
+	@Autowired
+	EnquiryListWrapper enquiryListWrapper;
+	
+	@ModelAttribute("formBean")
+	public FormBean createFormBean() {
+	  FormBean formBean = new FormBean();
+	  formBean.setSelector("0");
+//	  formBean.setNumber(100);
+	  return formBean;
+	}
+	
 
+	@GetMapping("/enquiry/form/uploadfail")
+	public String uploadFail(RedirectAttributes redirect) {
+		redirect.addFlashAttribute("uploadFail", "File upload failed, at least one of the attachments is larger than the limit (512KB/0.5MB).");
+		return "redirect:/enquiry/form";
+	}
+	
+	@GetMapping("/enquiry/form")
+	public String enquiryForm(@ModelAttribute String uploadFail, Model model) {
+		Enquiry enquiry = new Enquiry();
+		model.addAttribute("enquiry", enquiry);
+		model.addAttribute("user", new User());
+		model.addAttribute("uploadFail", "File upload failed, at least one of the attachments is larger than the limit (512KB/0.5MB).");
+		return "enquiryForm";
+	}
+	
+	@PostMapping("/enquiry/form")
+	public String enquiryAdd(@ModelAttribute @Valid Enquiry enquiry, BindingResult result, 
+			@RequestParam MultipartFile[] files, Model model) {
+		model.addAttribute("user", new User());
+		if(result.hasErrors()) {
+			List<FieldError> errors = result.getFieldErrors();
+	        for (FieldError error : errors ) {
+	            System.out.println (error.getObjectName() + " - " + error.getDefaultMessage());
+	        }
+			return "enquiryForm";
+		}else {
+			Enquiry enquiryToSave = new Enquiry();
+			enquiryToSave.setName(enquiry.getName());
+			enquiryToSave.setEmail(enquiry.getEmail());
+			if(enquiry.getPhone() != null)
+				enquiryToSave.setPhone(enquiry.getPhone());
+			enquiryToSave.setType(enquiry.getType());
+			enquiryToSave.setMessage(enquiry.getMessage());
+			enquiryToSave.setPolygon(enquiryService.convertRoundBracketToSquareCoordsArrayString(enquiry.getPolygon()));
+			enquiryToSave.setPolygonEncoded(enquiry.getPolygonEncoded());
+			enquiryToSave.setCreatedDate(ZonedDateTime.now());
+			enquiryToSave.setStatus("waiting");
+			System.out.println("files.length: " + files.length);
+			try {
+				if(files != null && files.length > 0) {
+					int filesNumber = files.length;
+					for(int i = 0; i < filesNumber; i++) {
+						System.out.println("file number: " + i);
+						if(files[i] != null && files[i].getSize() > 0) {
+							Attachment attachment = new Attachment();
+							attachment.setName(files[i].getOriginalFilename());
+							attachment.setSize(files[i].getSize() / 1024); // in KB
+							attachment.setMimetype(files[i].getContentType());
+							attachment.setEnquiry(enquiryToSave);
+							attachment.setFile(files[i].getBytes());
+							enquiryToSave.addAttachment(attachment);
+						}	
+					}
+				}
+			}catch (IOException e) {
+				model.addAttribute("uploadError", "00ps! Something went wrong, try again");
+				model.addAttribute("uploadErrorMessage", e.getMessage());
+				return "enquirySubmit";
+			}
+			try {
+				byte[] imageByteArray = enquiryService.imageUrlToByteArray(enquiry.getPolygonEncoded());
+				enquiryToSave.setImage(imageByteArray);
+			}catch(IOException e) {
+				System.err.println("Error saving static Google Map Polygon image, "
+						+ e.getMessage() + ", " + e.getCause() + ", " + e.getLocalizedMessage());
+				
+			}
+		
+			enquiryService.save(enquiryToSave);
+			Enquiry enquiryCheck = enquiryService.getById(enquiryToSave.getId());
+			if(enquiryCheck.getAttachments() != null)
+				System.out.println(enquiryCheck.getAttachments().size());
+//			System.out.println(enquiryCheck.getAttachment1().length);
+//			System.out.println(enquiryCheck.getAttachment2().length);
+//			System.out.println(enquiryCheck.getAttachment3().length);
+		}
+		System.out.println("polygon round brackets: " + enquiry.getPolygon());
+		System.out.println("polygon square brackets: "
+				+ enquiryService.convertRoundBracketToSquareCoordsArrayString(enquiry.getPolygon()));
+		return "enquirySubmit";
+	}
+	
+	@PostMapping("/enquiry/page")
+	public String enquiryPage(@ModelAttribute Enquiry enquiry, Model model, Principal principal, HttpServletResponse response) {
+		User currentUser = userService.getUserByUsername(principal.getName());
+		model.addAttribute("currentUser", currentUser);
+		Long waiting = enquiryService.getNumByStatus("waiting");
+		model.addAttribute("waiting", waiting);
+		Long opened = enquiryService.getNumByStatus("in progress");
+		model.addAttribute("opened", opened);
+		Long closed = enquiryService.getNumByStatus("closed");
+		model.addAttribute("closed", closed);
+		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+		model.addAttribute("openedByUser", openedByUser);
+		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+		model.addAttribute("closedByUser", closedByUser);
+		Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
+		enquiryService.sortProgressUsers(enquiryToView);
+		model.addAttribute("enquiry", enquiryToView);
+		model.addAttribute("imageDbUrl", baseUrl + "image/" + enquiryToView.getId());
+		model.addAttribute("email", null);
+		model.addAttribute("emailFail", null);
+		System.out.println("imageDbUrl: " + baseUrl + "image/" + enquiryToView.getId());
+		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
+//		center: new google.maps.LatLng(52.798, -1.299),
+		return "enquiryPage";
+	}
+	
+	@PostMapping("/enquiry/comment")
+	public String enquiryComment(@ModelAttribute FormBean formBean, Model model, Principal principal, HttpServletResponse response, FormBean fromBean) {
+		User currentUser = userService.getUserByUsername(principal.getName());
+		model.addAttribute("currentUser", currentUser);
+		Long waiting = enquiryService.getNumByStatus("waiting");
+		model.addAttribute("waiting", waiting);
+		Long opened = enquiryService.getNumByStatus("in progress");
+		model.addAttribute("opened", opened);
+		Long closed = enquiryService.getNumByStatus("closed");
+		model.addAttribute("closed", closed);
+		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+		model.addAttribute("openedByUser", openedByUser);
+		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+		model.addAttribute("closedByUser", closedByUser);
+		Enquiry enquiryToView = enquiryService.saveComment(fromBean);
+		enquiryService.sortProgressUsers(enquiryToView);
+		model.addAttribute("enquiry", enquiryToView);
+		model.addAttribute("imageDbUrl", baseUrl + "image/" + enquiryToView.getId());
+		model.addAttribute("email", null);
+		model.addAttribute("emailFail", null);
+		System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
+		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
+//		center: new google.maps.LatLng(52.798, -1.299),
+		return "enquiryPage";
+	}
+	
+	@PostMapping("/enquiry/email")
+	public String enquiryEmail(@ModelAttribute Enquiry enquiry, Model model, Principal principal, HttpServletResponse response) {
+		User currentUser = userService.getUserByUsername(principal.getName());
+		model.addAttribute("currentUser", currentUser);
+		Long waiting = enquiryService.getNumByStatus("waiting");
+		model.addAttribute("waiting", waiting);
+		Long opened = enquiryService.getNumByStatus("in progress");
+		model.addAttribute("opened", opened);
+		Long closed = enquiryService.getNumByStatus("closed");
+		model.addAttribute("closed", closed);
+		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+		model.addAttribute("openedByUser", openedByUser);
+		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+		model.addAttribute("closedByUser", closedByUser);
+		Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
+		enquiryService.sortProgressUsers(enquiryToView);
+		model.addAttribute("enquiry", enquiryToView);
+		model.addAttribute("imageDbUrl", baseUrl + "image/" + enquiryToView.getId());
+		try {
+			emailService.sendSimpleMessage(enquiryToView, currentUser);
+			model.addAttribute("email", "The enquiry has been successfully emailed to: ");
+		}catch (Exception e) {
+			model.addAttribute("emailFail", "Sending the email failed, please check your Internet connection and try again");
+		}
+				
+		System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
+		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
+//		center: new google.maps.LatLng(52.798, -1.299),
+		return "enquiryPage";
+	}
+	
+	
+	
+	@PostMapping("/enquiry/page/goto")
+	public String enquiryPageGoto(@ModelAttribute FormBean formBean, Model model, Principal principal, HttpServletResponse response) {
+		User currentUser = userService.getUserByUsername(principal.getName());
+		model.addAttribute("currentUser", currentUser);
+		Long waiting = enquiryService.getNumByStatus("waiting");
+		model.addAttribute("waiting", waiting);
+		Long opened = enquiryService.getNumByStatus("in progress");
+		model.addAttribute("opened", opened);
+		Long closed = enquiryService.getNumByStatus("closed");
+		model.addAttribute("closed", closed);
+		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+		model.addAttribute("openedByUser", openedByUser);
+		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+		model.addAttribute("closedByUser", closedByUser);
+		Enquiry enquiryToView = enquiryService.getById(formBean.getNumber());
+		if(enquiryToView != null) {
+			enquiryService.sortProgressUsers(enquiryToView);
+		}else {
+			enquiryToView = new Enquiry();
+			enquiryToView.setId(formBean.getNumber());
+			enquiryToView.setType("---------------  THERE IS NO ENQUIRY NUMBER: " + formBean.getNumber() + "  ---------------");
+		}
+//		enquiryService.sortProgressUsers(enquiryToView);
+		model.addAttribute("enquiry", enquiryToView);
+		model.addAttribute("email", null);
+		model.addAttribute("emailFail", null);
+		System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
+//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
+
+		return "enquiryPage";
+	}
+	
+	@PostMapping("/enquiry/page/next")
+	public String enquiryPageNext(@ModelAttribute Enquiry enquiry, Model model, Principal principal, HttpServletResponse response) {
+		User currentUser = userService.getUserByUsername(principal.getName());
+		model.addAttribute("currentUser", currentUser);
+		Long waiting = enquiryService.getNumByStatus("waiting");
+		model.addAttribute("waiting", waiting);
+		Long opened = enquiryService.getNumByStatus("in progress");
+		model.addAttribute("opened", opened);
+		Long closed = enquiryService.getNumByStatus("closed");
+		model.addAttribute("closed", closed);
+		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+		model.addAttribute("openedByUser", openedByUser);
+		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+		model.addAttribute("closedByUser", closedByUser);
+		Enquiry enquiryToView = enquiryService.getById(enquiry.getId() + 1);
+		if(enquiryToView != null) {
+			enquiryService.sortProgressUsers(enquiryToView);
+		}else {
+			enquiryToView = new Enquiry();
+			enquiryToView.setId(enquiry.getId() + 1);
+			enquiryToView.setType("---------------  THERE IS NO ENQUIRY NUMBER: " + (enquiry.getId() + 1) + "  ---------------");
+		}
+		model.addAttribute("enquiry", enquiryToView);
+		model.addAttribute("email", null);
+		model.addAttribute("emailFail", null);
+//		System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
+//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
+
+		return "enquiryPage";
+	}
+	
+	@PostMapping("/enquiry/page/previous")
+	public String enquiryPagePrevious(@ModelAttribute Enquiry enquiry, Model model, Principal principal, HttpServletResponse response) {
+		User currentUser = userService.getUserByUsername(principal.getName());
+		model.addAttribute("currentUser", currentUser);
+		Long waiting = enquiryService.getNumByStatus("waiting");
+		model.addAttribute("waiting", waiting);
+		Long opened = enquiryService.getNumByStatus("in progress");
+		model.addAttribute("opened", opened);
+		Long closed = enquiryService.getNumByStatus("closed");
+		model.addAttribute("closed", closed);
+		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+		model.addAttribute("openedByUser", openedByUser);
+		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+		model.addAttribute("closedByUser", closedByUser);
+		Enquiry enquiryToView = enquiryService.getById(enquiry.getId() - 1);
+		if(enquiryToView != null) {
+			enquiryService.sortProgressUsers(enquiryToView);
+		}else {
+			enquiryToView = new Enquiry();
+			enquiryToView.setId(enquiry.getId() - 1);
+			enquiryToView.setType("---------------  THERE IS NO ENQUIRY NUMBER: " + (enquiry.getId() - 1) + "  ---------------");
+		}
+		model.addAttribute("enquiry", enquiryToView);
+		model.addAttribute("email", null);
+		model.addAttribute("emailFail", null);
+//		System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
+//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
+
+		return "enquiryPage";
+	}
+	
+	@PostMapping("/enquiry/assign")
+	public String assign(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
+		User currentUser = userService.getUserByUsername(principal.getName());
+		model.addAttribute("currentUser", currentUser);
+		Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
+		enquiryToView.addProgressUser(currentUser);
+		enquiryToView.setStatus("in progress");
+		enquiryService.save(enquiryToView);
+		enquiryService.sortProgressUsers(enquiryToView);
+		Long waiting = enquiryService.getNumByStatus("waiting");
+		model.addAttribute("waiting", waiting);
+		Long opened = enquiryService.getNumByStatus("in progress");
+		model.addAttribute("opened", opened);
+		Long closed = enquiryService.getNumByStatus("closed");
+		model.addAttribute("closed", closed);
+		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+		model.addAttribute("openedByUser", openedByUser);
+		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+		model.addAttribute("closedByUser", closedByUser);
+		model.addAttribute("enquiry", enquiryToView);
+		model.addAttribute("email", null);
+		model.addAttribute("emailFail", null);
+		return "enquiryPage";	
+	}
+	
+	@PostMapping("/enquiry/deassign")
+	public String deassign(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
+		User currentUser = userService.getUserByUsername(principal.getName());
+		model.addAttribute("currentUser", currentUser);
+		Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
+		enquiryToView.removeProgressUser(currentUser);
+		if(enquiryToView.getProgressUser().isEmpty()) {
+			enquiryToView.setStatus("waiting");
+		}else {
+			enquiryToView.setStatus("in progress");
+		}
+		enquiryService.save(enquiryToView);
+		enquiryService.sortProgressUsers(enquiryToView);
+		Long waiting = enquiryService.getNumByStatus("waiting");
+		model.addAttribute("waiting", waiting);
+		Long opened = enquiryService.getNumByStatus("in progress");
+		model.addAttribute("opened", opened);
+		Long closed = enquiryService.getNumByStatus("closed");
+		model.addAttribute("closed", closed);
+		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+		model.addAttribute("openedByUser", openedByUser);
+		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+		model.addAttribute("closedByUser", closedByUser);
+		model.addAttribute("enquiry", enquiryToView);
+		model.addAttribute("email", null);
+		model.addAttribute("emailFail", null);
+		return "enquiryPage";	
+	}
+	
+	@PostMapping("/enquiry/close")
+	public String close(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
+		User currentUser = userService.getUserByUsername(principal.getName());
+		model.addAttribute("currentUser", currentUser);
+		Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
+		enquiryToView.setClosingUser(currentUser);
+		enquiryToView.setClosedDate(ZonedDateTime.now());
+		enquiryToView.setStatus("closed");
+		enquiryService.save(enquiryToView);
+		enquiryService.sortProgressUsers(enquiryToView);
+		Long waiting = enquiryService.getNumByStatus("waiting");
+		model.addAttribute("waiting", waiting);
+		Long opened = enquiryService.getNumByStatus("in progress");
+		model.addAttribute("opened", opened);
+		Long closed = enquiryService.getNumByStatus("closed");
+		model.addAttribute("closed", closed);
+		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+		model.addAttribute("openedByUser", openedByUser);
+		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+		model.addAttribute("closedByUser", closedByUser);
+		model.addAttribute("enquiry", enquiryToView);
+		model.addAttribute("email", null);
+		model.addAttribute("emailFail", null);
+		return "enquiryPage";
+	}
+	
+	@PostMapping("/enquiry/open")
+	public String open(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
+		User currentUser = userService.getUserByUsername(principal.getName());
+		model.addAttribute("currentUser", currentUser);
+		Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
+		enquiryToView.setStatus("in progress");
+		enquiryToView.setClosedDate(null);
+		enquiryService.save(enquiryToView);
+		enquiryService.sortProgressUsers(enquiryToView);
+		Long waiting = enquiryService.getNumByStatus("waiting");
+		model.addAttribute("waiting", waiting);
+		Long opened = enquiryService.getNumByStatus("in progress");
+		model.addAttribute("opened", opened);
+		Long closed = enquiryService.getNumByStatus("closed");
+		model.addAttribute("closed", closed);
+		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+		model.addAttribute("openedByUser", openedByUser);
+		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+		model.addAttribute("closedByUser", closedByUser);
+		model.addAttribute("enquiry", enquiryToView);
+		model.addAttribute("email", null);
+		model.addAttribute("emailFail", null);
+		return "enquiryPage";	
+	}
 	
 	
 }
 
 /*
-	@Autowired
-	UserService userService;
-	
-	@Autowired
-	ContactService contactService;
-	
-	@Autowired
-	ContactRepository contactRepository;
-	
-	@Autowired
-	FromView fromView;
-	
-	@Autowired
-	ContactWrapper contactWrapper;
-	
-	@ModelAttribute("fromView")
-	public FromView getFromView() {
-	    return fromView;
+
+ @ExceptionHandler(FileSizeLimitExceededException.class)
+	public String uploadedAFileTooLarge(FileSizeLimitExceededException e) {
+		return "enquirySubmitOk";
 	}
 	
-	@ModelAttribute("contactWrapper")
-	public ContactWrapper getContactWrapper() {
-	    return contactWrapper;
-	}
-	
-		
-	@GetMapping("/contacts")
-	public String contacts(@ModelAttribute User currentUserRe, @ModelAttribute FromView fromView,
-			 Model model, Principal principal, HttpServletRequest request) {
-		ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-		model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-		model.addAttribute("currentZone", currentZonedDateTime.getZone());
-		String currentUserName = principal.getName();
-		User currentUser = userService.getUserByUsername(currentUserName);
-		model.addAttribute("currentUser", currentUser);
-		Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-		model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-		logger.info("GET/contacts - deletedList: " + contactWrapper.getDeletedList().toString());
-		if(request.isUserInRole(ADMIN_ROLE)) {
-			List<User> users = userService.getAllUsersNoAdmins();
-			model.addAttribute("users", users);
-			logger.info("users size: " + users.size());
-		}
-		Contact contact = new Contact();			
-		model.addAttribute("contact", contact);	
-		model.addAttribute("noContacts", "yes");
-		fromView.setBulkOpsSwitch("0");
-//		model.addAttribute("uniqueTokens", fromView.getContactsUploadedTokens());
-		return "contacts";
-	}
-	
-	@PostMapping("/contacts")
-	public String contactsSorted(@ModelAttribute @Valid FromView fromView, BindingResult result, 
-			@ModelAttribute ("contactWrapperDeleted") ContactWrapper contactWrapperDeleted, Model model, Principal principal, HttpServletRequest request) {
-		if (result.hasErrors()) {
-			ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-			model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-			model.addAttribute("currentZone", currentZonedDateTime.getZone());
-			String currentUserName = principal.getName();
-			User currentUser = userService.getUserByUsername(currentUserName);
-			model.addAttribute("currentUser", currentUser);
-			Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-			model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-			Contact contact = new Contact();			
-			model.addAttribute("contact", contact);
-			model.addAttribute("noContacts", "yes");
-//			model.addAttribute("uniqueTokens", fromView.getContactsUploadedTokens());
-			return "contacts";
-		}else {
-			ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-			model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-			model.addAttribute("currentZone", currentZonedDateTime.getZone());
-			String currentUserName = principal.getName();
-			User currentUser = userService.getUserByUsername(currentUserName);
-			model.addAttribute("currentUser", currentUser);
-			Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-			model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-			if(request.isUserInRole(ADMIN_ROLE)) {
-				List<User> users = userService.getAllUsersNoAdmins();
-				model.addAttribute("users", users);
-				logger.info("users size: " + users.size());
-			}
-			List<Contact> resultContactsBeforeFlagsRemoved = contactWrapper.getResultList(); //potential risky behaviour!!
-			String selector = fromView.getSelector();
-			switch(selector) {
-			case "1":
-				resultContactsBeforeFlagsRemoved = 
-				contactService.findNByColumnSortedBy(currentUser, fromView.getResult1(), fromView.getSortBy(), fromView.getDirection());
-				System.err.println(fromView.getSelector() + " " + currentUser.getFirstName() + " " + fromView.getResult1()
-						+ ", " + fromView.getNumber() + ", " + fromView.getSortBy() + ", size: " + resultContactsBeforeFlagsRemoved.size());
-				if(resultContactsBeforeFlagsRemoved.size() < 1) {
-					model.addAttribute("noContacts", "yes");
-				}else {
-					model.addAttribute("noContacts", "no");
-				}
-				break;
-			case "2":
-				resultContactsBeforeFlagsRemoved = 
-				contactService.findByPropertyName(currentUser, fromView.getFindBy(), 
-						fromView.getSearchFor2().trim(), fromView.getResult2());
-				System.err.println(fromView.getSelector() + ", user: " + currentUser.getFirstName() + ", limit: "
-						+ fromView.getResult2() + ", column: " + fromView.getFindBy() 
-						+ ", search for2: " + fromView.getSearchFor2() + ", size: "
-						+ resultContactsBeforeFlagsRemoved.size());
-				if(resultContactsBeforeFlagsRemoved.size() < 1) {
-					model.addAttribute("noContacts", "yes");
-				}else {
-					model.addAttribute("noContacts", "no");
-				}
-				break;
-			case "3":
-				resultContactsBeforeFlagsRemoved = 
-				contactService.findByPartialPropertyName(currentUser, fromView.getFindBy(),
-						fromView.getSearchFor3().trim(), fromView.getResult3());
-				System.err.println(fromView.getSelector() + ", user: " + currentUser.getFirstName()	+ ", limit: " 
-						+ fromView.getResult3() + ", column: " + fromView.getFindBy() + ", search for3: "
-						+ fromView.getSearchFor3() + ", size: " 
-				+ resultContactsBeforeFlagsRemoved.size());
-				if(resultContactsBeforeFlagsRemoved.size() < 1) {
-					model.addAttribute("noContacts", "yes");
-				}else {
-					model.addAttribute("noContacts", "no");
-				}
-				break;
-			case "4":
-				resultContactsBeforeFlagsRemoved = 
-				contactService.findByDate(currentUser, fromView.getFindBy(), fromView.getSearchFor4().trim(),
-						fromView.getResult4(), fromView.getDateStartTxt(), fromView.getDateEndTxt());
-				System.err.println(fromView.getSelector() + ", user: " + currentUser.getFirstName() + ", limit: " 
-						+ fromView.getResult4()	+ ", column: " + fromView.getFindBy() + ", search for4: " 
-						+ fromView.getSearchFor4() + ", date start: " + fromView.getDateStartTxt() + ", date end: "
-						+ fromView.getDateEndTxt());
-				if(resultContactsBeforeFlagsRemoved.size() < 1) {
-					model.addAttribute("noContacts", "yes");
-				}else {
-					model.addAttribute("noContacts", "no");
-				}
-				break;
-			default:
-				resultContactsBeforeFlagsRemoved = contactService.getTop10ByUser(currentUser);
-				if(resultContactsBeforeFlagsRemoved.size() < 1) {
-					model.addAttribute("noContacts", "yes");
-				}else {
-					model.addAttribute("noContacts", "no");
-				}
-			}
-			logger.info("/contacts - resultContactsBeforeFlagsRemoved: "
-					+ resultContactsBeforeFlagsRemoved.size() + resultContactsBeforeFlagsRemoved.toString());
-			List<Contact> resultContacts = resultContactsBeforeFlagsRemoved.stream()
-					.filter(c -> !"1".equals(c.getDeleted()))
-					.filter(c -> !"1".equals(c.getDuplicated()))
-					.collect(Collectors.toList());
-			logger.info("/contacts - resultContacts: " + resultContacts.size() + resultContacts.toString());
-			if(resultContacts.size() > 0) {
-				contactWrapper.setResultList(resultContacts);
-//				model.addAttribute("contactWrapper", contactWrapper);
-				Contact contact = new Contact();			
-				model.addAttribute("contact", contact);	
-				logger.info("Contacts listed ok/POST");
-//				model.addAttribute("uniqueTokens", fromView.getContactsUploadedTokens());
-				return "contacts";	
-			}else {
-				model.addAttribute("noContacts", "You don't have any contacts loaded yet.");
-				Contact contact = new Contact();			
-				model.addAttribute("contact", contact);	
-				model.addAttribute("noContacts", "yes");
-//				model.addAttribute("uniqueTokens", fromView.getContactsUploadedTokens());
-				logger.info("Contacts not listed - user doesn't have any");
-			}
-		}
-		fromView.setBulkOpsSwitch("0");
-		return "contacts";
-	}
-	
-	@GetMapping("/addContact")
-	public String addContact(Model model, Principal principal) {
-		ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-		model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-		model.addAttribute("currentZone", currentZonedDateTime.getZone());
-		String currentUserName = principal.getName();
-		User currentUser = userService.getUserByUsername(currentUserName);
-		model.addAttribute("currentUser", currentUser);
-		Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-		model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-		List<Contact> resultContacts = new ArrayList<>();
-		model.addAttribute("currentUserContacts", resultContacts);
-		Contact contact = new Contact();
-		model.addAttribute("contact", contact);
-		return "addContact";
-	}
-	
-	@PostMapping("/addContact")
-	public String saveContact(@ModelAttribute @Valid Contact contact, BindingResult result, Principal principal, Model model) {
-		if (result.hasErrors()) {
-//	        List<ObjectError> errors = result.getAllErrors();
-//	        errors.forEach(err -> System.out.println(err.getDefaultMessage()));
-			ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-			model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-			model.addAttribute("currentZone", currentZonedDateTime.getZone());
-	        String currentUserName = principal.getName();						
-	 		User currentUser = userService.getUserByUsername(currentUserName); 
-	 		model.addAttribute("currentUser", currentUser);			
-	 		Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-			model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-			List<Contact> resultContacts = new ArrayList<>();
-			model.addAttribute("currentUserContacts", resultContacts);
-	        return "addContact";
-		}else {
-			ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-			model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-			model.addAttribute("currentZone", currentZonedDateTime.getZone());
-			String currentUserName = principal.getName();
-			User currentUser = userService.getUserByUsername(currentUserName);
-			Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-			model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-			List<Contact> resultContacts = new ArrayList<>();
-			model.addAttribute("currentUserContacts", resultContacts);
-			contact.setCreated(currentZonedDateTime);
-			contact.setDeleted("0");
-			currentUser.addContact(contact);
-			userService.save(currentUser);
-			logger.info("Contact added");
-		}
-		return "redirect:contacts";
-	}
+*/	
 	
 
- 	--------------------- not used anymore --------------------------
-	@RequestMapping(value="/deleteContact/{id}", method=RequestMethod.DELETE)
-	public String deleteContact(@PathVariable long id, Principal principal) {
-		System.out.println("Cotntact to remove: --> "+ contactService.findById(id));
-		String currentUserName = principal.getName();
-		User currentUser = userService.getUserByUsername(currentUserName);
-	    contactService.deleteContact(id);
-	    return "redirect:/contacts";
-	}
-	
-	@RequestMapping(value="/deleteContact", method=RequestMethod.POST)
-	public String deleteContact (@ModelAttribute Contact contact, Principal principal, Model model){
-		ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-		model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-		model.addAttribute("currentZone", currentZonedDateTime.getZone());
-		String currentUserName = principal.getName();
-		User currentUser = userService.getUserByUsername(currentUserName);
-		model.addAttribute("currentUser", currentUser);
-		Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-		model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-		List<Contact> resultContacts = new ArrayList<>();
-		model.addAttribute("currentUserContacts", resultContacts);
-		contact = contactRepository.findById(contact.getId());
-		model.addAttribute("contact", contact);
-		return "deleteContact";
-	}
-	
-	@RequestMapping(value="/eraseContact", method=RequestMethod.POST)
-	public String eraseContact(@ModelAttribute Contact contact) {
-	    contactService.deleteContact(contact.getId());
-	    logger.info("Contact deleted");
-		return "redirect:/contacts";
-	}
-	
-	@RequestMapping(value="/editContact", method=RequestMethod.POST)
-	public String editContact (@ModelAttribute Contact contact, Principal principal, Model model){
-		ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-		model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-		model.addAttribute("currentZone", currentZonedDateTime.getZone());
-		String currentUserName = principal.getName();
-		User currentUser = userService.getUserByUsername(currentUserName);
-		model.addAttribute("currentUser", currentUser);
-		Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-		model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-		List<Contact> resultContacts = new ArrayList<>();
-		model.addAttribute("currentUserContacts", resultContacts);
-		contact = contactRepository.findById(contact.getId());
-		model.addAttribute("contact", contact);
-		return "editContact";
-	}
-	
-	@PostMapping("/updateContact")
-	public String updateContact(@ModelAttribute @Valid Contact contact, BindingResult result, Principal principal, Model model) {
-		if (result.hasErrors()) {
-	//         List<ObjectError> errors = result.getAllErrors();
-	//         errors.forEach(err -> System.out.println(err.getDefaultMessage()));
-			ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-			model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-			model.addAttribute("currentZone", currentZonedDateTime.getZone());
-	        String currentUserName = principal.getName();						
-	 		User currentUser = userService.getUserByUsername(currentUserName); 
-	 		model.addAttribute("currentUser", currentUser);
-	 		Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-			model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-			List<Contact> resultContacts = new ArrayList<>();
-			model.addAttribute("currentUserContacts", resultContacts);
-	         return "editContact";
-		}else {
-	//		System.err.println("Contact to update: --> "+ contact.getCreated());
-	//		ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-	//		contact.setUpdated(currentZonedDateTime);
-			String currentUserName = principal.getName();
-			User currentUser = userService.getUserByUsername(currentUserName);
-			model.addAttribute("currentUser", currentUser);
-			currentUser.addContact(contact);
-			contactService.updateContact(contact);
-			logger.info("Contact updated");
-			return "redirect:contacts";
-		}
-	}
-	
-*/
+
+
+
+
+
 
 
 

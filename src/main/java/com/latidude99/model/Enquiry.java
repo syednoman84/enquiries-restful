@@ -1,11 +1,23 @@
 package com.latidude99.model;
 
 import java.io.Serializable;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -19,15 +31,24 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyTemporal;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 
 
+@Indexed
 @Entity
 public class Enquiry implements Serializable{
 	private static final long serialVersionUID = -4646260725584082081L;
@@ -36,61 +57,217 @@ public class Enquiry implements Serializable{
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private long id;
 	
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@NotEmpty(message = "{com.latidude99.model.Enquiry.name.NotEmpty}")
 	private String name;
 	
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+	@NotEmpty(message = "{com.latidude99.model.Enquiry.email.NotEmpty}")
 	@Email(message = "{com.latidude99.model.Enquiry.email.Email}")
 	private String email;
 	
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@NotEmpty(message = "{com.latidude99.model.Enquiry.message.NotEmpty}")
-	@Size(max=2048)
+	@Size(max=4096, message = "{com.latidude99.model.Enquiry.message.Size}")
 	private String message;
 	
-	@Lob
-	private byte[] attachment1;
-	@Lob
-	private byte[] attachment2;
-	@Lob
-	private byte[] attachment3;
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+	private String phone;
 	
-	private ZonedDateTime created;
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+	private String isbn;
+	
+	private ZonedDateTime createdDate;
 	
 	private ZonedDateTime closedDate;
 	
-	@OneToMany(mappedBy = "enquiry", 
-			fetch = FetchType.EAGER, 
-			cascade = {CascadeType.MERGE, CascadeType.REMOVE }, 
+	private String status;
+	
+	@Size(max=4096)
+	private String polygon;
+	
+	@Size(max=2048)
+	private String polygonEncoded;
+	
+	@NotEmpty(message = "{com.latidude99.model.Enquiry.type.NotEmpty}")
+	private String type;
+	
+	@Lob
+	private byte[] image;
+	
+	@OneToMany(mappedBy = "enquiry",
+			fetch = FetchType.LAZY, 
+			cascade = {CascadeType.ALL }, 
 			orphanRemoval = true)
-	private List<Point> point;
+	private List<Comment> comments = new ArrayList<>();
 	
-	@ElementCollection
-	@CollectionTable(name="emails_enquiry", joinColumns=@JoinColumn(name="enquiry_id"))
-	@Column(name="emails_fwd")
-	private List<String> emailsFwd;
+	@Transient //formatting for the View
+	private List<User> sortedProgressUsers = new ArrayList<>();
 	
-	@ManyToMany(mappedBy = "enquiriesProgress")
-    private List<User> progressUser = new ArrayList<>();
+	@Transient //formatting for the View
+	private List<String> sortedProgressUsersWithDate = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "enquiry",
+			fetch = FetchType.LAZY, 
+			cascade = {CascadeType.ALL }, 
+			orphanRemoval = true)
+	private List<Attachment> attachments = new ArrayList<>();
+		
+	@OneToMany(mappedBy = "enquiry", 
+			fetch = FetchType.LAZY, 
+			cascade = {CascadeType.ALL }, 
+			orphanRemoval = true)
+	private List<Point> point = new ArrayList<>();
+	
+	@ManyToMany(
+			fetch = FetchType.EAGER,
+			cascade = CascadeType.PERSIST)
+	@MapKeyTemporal(TemporalType.TIMESTAMP)
+    private Map<java.util.Date, User> progressUser = new TreeMap<>();
 	
 	@ManyToOne
     @JoinColumn(name = "user_closing_id")
     private User closingUser;
 	
+		
 	
-	
+/*	
 	@PrePersist
 	protected void onCreate() {
-	    created = ZonedDateTime.now();
+	    createdDate = ZonedDateTime.now();
 	}
 
 	@PreUpdate
 	protected void onUpdate() {
 
 	}
+*/
+	//to save in DB
+	public void addProgressUser(User user) {
+		Map<java.util.Date, User> map = getProgressUser();
+		Calendar calendar = Calendar.getInstance();
+		java.util.Date now = calendar.getTime();
+		java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
+		if(!map.isEmpty()) {
+			Set<java.util.Date> mapKeys = map.keySet();
+			java.util.Date mostRecent = Collections.max(mapKeys);
+			User userRecent = map.get(mostRecent);
+			if(!userRecent.equals(user)) {
+				map.put(currentTimestamp, user);
+			}//else if(mostRecent != currentTimestamp)
+			//	map.put(currentTimestamp, user);
+		}else {
+			map.put(currentTimestamp, user);
+		}
+		setProgressUser(map);
+	}
+	
+	public void removeProgressUser(User user) {
+		Map<java.util.Date, User> map = getProgressUser();
+		if(!map.isEmpty()) {
+			Set<java.util.Date> mapKeys = map.keySet();
+			java.util.Date mostRecent = Collections.max(mapKeys);
+			User userRecent = map.get(mostRecent);
+			if(userRecent.equals(user))
+				map.remove(mostRecent);
+		}
+		setProgressUser(map);
+	}
+
+		
+	//to save in DB
+	public void addAttachment(Attachment attachment) {
+		attachment.setEnquiry(this);
+		getAttachments().add(attachment);
+	}
+	
+	public void addComment(Comment comment) {
+		comment.setEnquiry(this);
+		getComments().add(comment);
+	}
 	
 	
-	/* setters, getters and toString */
+//-------------------------------------------------	
+		
 	
 
+	
+	
+	public byte[] getImage() {
+		return image;
+	}
+
+	public void setImage(byte[] image) {
+		this.image = image;
+	}
+
+	
+
+	public List<Comment> getComments() {
+		return comments;
+	}
+
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
+	}
+
+	public String getPolygon() {
+		return polygon;
+	}
+	
+	public String getPolygonEncoded() {
+		return polygonEncoded;
+	}
+
+	public void setPolygonEncoded(String polygonEncoded) {
+		this.polygonEncoded = polygonEncoded;
+	}
+
+	public void setPolygon(String polygon) {
+		this.polygon = polygon;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+	
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getIsbn() {
+		return isbn;
+	}
+
+	public void setIsbn(String isbn) {
+		this.isbn = isbn;
+	}
+	
+	public List<Attachment> getAttachments() {
+		return attachments;
+	}
+	
+	public void setAttachments(List<Attachment> attachments) {
+		this.attachments = attachments;
+	}
+	
+	public List<User> getSortedProgressUsers() {
+		return sortedProgressUsers;
+	}
+
+	public List<String> getSortedProgressUsersWithDate() {
+		return sortedProgressUsersWithDate;
+	}
+
+	public void setSortedProgressUsersWithDate(List<String> sortedProgressUsersWithDate) {
+		this.sortedProgressUsersWithDate = sortedProgressUsersWithDate;
+	}
+
+	public void setSortedProgressUsers(List<User> sortedProgressUsers) {
+		this.sortedProgressUsers = sortedProgressUsers;
+	}
+
+	
 	public long getId() {
 		return id;
 	}
@@ -123,52 +300,13 @@ public class Enquiry implements Serializable{
 		this.message = message;
 	}
 
-	public List<Point> getPoint() {
-		return point;
+	
+	public ZonedDateTime getCreatedDate() {
+		return createdDate;
 	}
 
-	public void setPoint(List<Point> point) {
-		this.point = point;
-	}
-
-	public List<String> getEmailsFwd() {
-		return emailsFwd;
-	}
-
-	public void setEmailsFwd(List<String> emailsFwd) {
-		this.emailsFwd = emailsFwd;
-	}
-
-	public byte[] getAttachment1() {
-		return attachment1;
-	}
-
-	public void setAttachment1(byte[] attachment1) {
-		this.attachment1 = attachment1;
-	}
-
-	public byte[] getAttachment2() {
-		return attachment2;
-	}
-
-	public void setAttachment2(byte[] attachment2) {
-		this.attachment2 = attachment2;
-	}
-
-	public byte[] getAttachment3() {
-		return attachment3;
-	}
-
-	public void setAttachment3(byte[] attachment3) {
-		this.attachment3 = attachment3;
-	}
-
-	public ZonedDateTime getCreated() {
-		return created;
-	}
-
-	public void setCreated(ZonedDateTime created) {
-		this.created = created;
+	public void setCreatedDate(ZonedDateTime createdDate) {
+		this.createdDate = createdDate;
 	}
 
 	public ZonedDateTime getClosedDate() {
@@ -179,16 +317,41 @@ public class Enquiry implements Serializable{
 		this.closedDate = closedDate;
 	}
 
-	public List<User> getProgressUser() {
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public List<Point> getPoint() {
+		return point;
+	}
+
+	public void setPoint(List<Point> point) {
+		this.point = point;
+	}
+
+	
+	public User getClosingUser() {
+		return closingUser;
+	}
+
+	public Map<java.util.Date, User> getProgressUser() {
 		return progressUser;
 	}
 
-	public void setProgressUser(List<User> progressUser) {
+	public void setProgressUser(Map<java.util.Date, User> progressUser) {
 		this.progressUser = progressUser;
-	}
-
-	public User getClosingUser() {
-		return closingUser;
 	}
 
 	public void setClosingUser(User closingUser) {
@@ -199,19 +362,17 @@ public class Enquiry implements Serializable{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Arrays.hashCode(attachment1);
-		result = prime * result + Arrays.hashCode(attachment2);
-		result = prime * result + Arrays.hashCode(attachment3);
 		result = prime * result + ((closedDate == null) ? 0 : closedDate.hashCode());
 		result = prime * result + ((closingUser == null) ? 0 : closingUser.hashCode());
-		result = prime * result + ((created == null) ? 0 : created.hashCode());
+		result = prime * result + ((createdDate == null) ? 0 : createdDate.hashCode());
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
-		result = prime * result + ((emailsFwd == null) ? 0 : emailsFwd.hashCode());
 		result = prime * result + (int) (id ^ (id >>> 32));
 		result = prime * result + ((message == null) ? 0 : message.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((point == null) ? 0 : point.hashCode());
 		result = prime * result + ((progressUser == null) ? 0 : progressUser.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -224,12 +385,6 @@ public class Enquiry implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		Enquiry other = (Enquiry) obj;
-		if (!Arrays.equals(attachment1, other.attachment1))
-			return false;
-		if (!Arrays.equals(attachment2, other.attachment2))
-			return false;
-		if (!Arrays.equals(attachment3, other.attachment3))
-			return false;
 		if (closedDate == null) {
 			if (other.closedDate != null)
 				return false;
@@ -240,20 +395,15 @@ public class Enquiry implements Serializable{
 				return false;
 		} else if (!closingUser.equals(other.closingUser))
 			return false;
-		if (created == null) {
-			if (other.created != null)
+		if (createdDate == null) {
+			if (other.createdDate != null)
 				return false;
-		} else if (!created.equals(other.created))
+		} else if (!createdDate.equals(other.createdDate))
 			return false;
 		if (email == null) {
 			if (other.email != null)
 				return false;
 		} else if (!email.equals(other.email))
-			return false;
-		if (emailsFwd == null) {
-			if (other.emailsFwd != null)
-				return false;
-		} else if (!emailsFwd.equals(other.emailsFwd))
 			return false;
 		if (id != other.id)
 			return false;
@@ -277,18 +427,28 @@ public class Enquiry implements Serializable{
 				return false;
 		} else if (!progressUser.equals(other.progressUser))
 			return false;
+		if (status == null) {
+			if (other.status != null)
+				return false;
+		} else if (!status.equals(other.status))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Enquiry [id=" + id + ", name=" + name + ", email=" + email + ", message=" + message + ", point=" + point
-				+ ", emailsFwd=" + emailsFwd + ", attachment1=" + Arrays.toString(attachment1) + ", attachment2="
-				+ Arrays.toString(attachment2) + ", attachment3=" + Arrays.toString(attachment3) + ", created="
-				+ created + ", closedDate=" + closedDate + ", progressUser=" + progressUser + ", closingUser="
-				+ closingUser + "]";
+		return "Enquiry [id=" + id + ", name=" + name + ", email=" + email + ", message=" + message + ", createdDate="
+				+ createdDate + ", closedDate=" + closedDate + ", status=" + status + ", type=" + type + ", point="
+				+ point + ", progressUser=" + progressUser + ", closingUser=" + closingUser
+				+ "]";
 	}
 
 	
+
 		
 }

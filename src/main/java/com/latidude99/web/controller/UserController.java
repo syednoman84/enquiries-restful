@@ -1,125 +1,196 @@
 package com.latidude99.web.controller;
 
 import java.security.Principal;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-import javax.mail.SendFailedException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.latidude99.model.Enquiry;
 import com.latidude99.model.User;
+import com.latidude99.service.EmailService;
+import com.latidude99.service.EnquiryService;
+import com.latidude99.service.UserService;
 
 @Controller
 public class UserController {
 	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-	private static final String DEFAULT_ROLE = "ROLE_USER";
-	private static final String ADMIN_ROLE = "ROLE_ADMIN";
-	private static final String APP_URL = "contacts.latidude99.com";
+	private static final String APP_URL = "enquiry.latidude99.com";
 	
-	
-}
-/*	
+	@Autowired
 	private UserService userService;
 	
 	@Autowired
-	ContactService contactService;
-	
-	@Autowired
-	ContactRepository contactRepository;
-	
-	@Autowired
-	public void setUserService(UserService userService) {
-		this.userService = userService;
-	}
+	EnquiryService enquiryService;
 	
 	@Autowired
 	private EmailService emailService;
-	
+		
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	@Autowired
-	FromView fromView;
-	
-	@Autowired
-	ContactWrapper contactWrapper;
-	
-		
-	@ModelAttribute("fromView")
-	public FromView getFromView() {
-	    return fromView;
+	@GetMapping("/user")
+	public String user(Model model, Principal principal) {
+		User currentUser = userService.getUserByUsername(principal.getName());
+		model.addAttribute("currentUser", currentUser);
+		Long waiting = enquiryService.getNumByStatus("waiting");
+		model.addAttribute("waiting", waiting);
+		Long opened = enquiryService.getNumByStatus("in progress");
+		model.addAttribute("opened", opened);
+		Long closed = enquiryService.getNumByStatus("closed");
+		model.addAttribute("closed", closed);
+		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "opened");
+		model.addAttribute("openedByUser", openedByUser);
+		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "opened");
+		model.addAttribute("closedByUser", closedByUser);
+		return "enquiryUser";
 	}
 	
-	@ModelAttribute("contactWrapper")
-	public ContactWrapper getContactWrapper() {
-	    return contactWrapper;
-	}
-
-	@GetMapping("/register")
-	public String register(Model model) {
-		model.addAttribute("user", new User());
-		return "registration";
-	}
-
-	@PostMapping("/register")
-	public String addUser(@ModelAttribute @Valid User user,	BindingResult bindResult, Model model, HttpServletRequest request) {
-		if(userService.isAvailable(user)) {
-			if(bindResult.hasErrors())
-				return "registration";
-			else {
-				try {
-					String token = UUID.randomUUID().toString();
-//					String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-					String appUrl = APP_URL;
-					SimpleMailMessage registrationEmail = new SimpleMailMessage();
-					registrationEmail.setFrom("no-replay@domain.com");
-					registrationEmail.setTo(user.getEmail());
-					registrationEmail.setSubject("Registration Confirmation");
-					registrationEmail.setText("To confirm your e-mail address, please click the link below:\n"
-												+ appUrl + "/confirm?token=" + token);
-					registrationEmail.setFrom("noreply@domain.com");
-					emailService.sendEmail(registrationEmail);
-					user.setEnabled(false);
-					user.setConfirmationToken(token);
-					userService.addWithDefaultRole(user);
-					model.addAttribute("confirmationMessage", "A confirmation e-mail has been sent to " + user.getEmail());
-					model.addAttribute("emailerror", null);
-					logger.info("Registration succesfull");
-					return "registrationConfirmation";
-				}catch(Exception e) {
-					model.addAttribute("emailerror", "error");
-					return "registration";
-				}
-			}
+	@PostMapping("/user/update")
+	public String updateDetails(@ModelAttribute ("currentUser") @Valid User user, BindingResult result, Model model, Principal principal) {
+		if (result.hasErrors()) {
+			String currentUserName = principal.getName();
+			User currentUser = userService.getUserByUsername(currentUserName);
+			model.addAttribute("currentUser", currentUser);
+			Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "opened");
+			model.addAttribute("openedByUser", openedByUser);
+			Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+			model.addAttribute("closedByUser", closedByUser);
+			logger.info("password validation errors");
+			result.getAllErrors().forEach(e -> System.out.println(e.toString()));
+			return "enquiryUser";
 		}else {
-			Boolean notAvailable = true;
-			model.addAttribute("notAvailable", notAvailable);
-			return "registration";
-		}
+			String currentUserName = principal.getName();
+			User currentUser = userService.getUserByUsername(currentUserName);
+//			user.setId(currentUser.getId());
+//			user.setRegistered(currentUser.getRegistered());
+//			user.setRoles(currentUser.getRoles());
+			if (passwordEncoder.matches(user.getPassword(), currentUser.getPassword())) {
+				currentUser.setPassword(passwordEncoder.encode(user.getPasswordNew()));
+//				user.setEnabled(true);
+				userService.save(currentUser);
+				model.addAttribute("currentUser", currentUser);
+				model.addAttribute("passwordOldNoMatch", null);
+				model.addAttribute("uploadFail", "Your password has been succesfully changed!");
+				logger.info("old password matches new");
+			} else {
+				model.addAttribute("passwordOldNoMatch", "The password entered does not match your current password");
+				logger.info("old password doesn't match new");
+			} 
+			Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "opened");
+			model.addAttribute("openedByUser", openedByUser);
+			Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+			model.addAttribute("closedByUser", closedByUser);
+			}
+		return "enquiryUser";
 	}
+	
+	@GetMapping("/user/activate")
+	public String activate(@RequestParam("activationToken") String token, Model model) {
+		User user = userService.findByActivationToken(token);
+		if (user == null) {
+			model.addAttribute("invalidToken", "Oops!  This is an invalid activation link.");
+		} else {
+			user.setEnabled(true);
+			user.setActivationToken(null);
+			userService.save(user);	
+			model.addAttribute("user", user);
+			model.addAttribute("invalidToken", null);
+			logger.info("User activated");
+		}
+		return "activation";		
+	}
+	
+	@GetMapping("/user/reset")
+	public String reset(@RequestParam("resetToken") String token, Model model) {
+		User user = userService.findByResetToken(token);
+		model.addAttribute("reset", null);
+		if (user == null) {
+			model.addAttribute("invalidToken", "Oops!  This is an invalid reset link.");
+		} else {
+			user.setEnabled(true);
+			user.setResetToken(null);
+			userService.save(user);	
+			model.addAttribute("user", user);
+			model.addAttribute("invalidToken", null);
+			logger.info("User reset link sent");
+		}
+		return "reset";		
+	}
+	
+	@PostMapping("/user/resetForm")
+	public String resetForm(@ModelAttribute @Valid User user, BindingResult bindResult, Model model) {
+		if(bindResult.hasErrors()) {
+			model.addAttribute("user", user);
+			logger.info("User password has not been reset");
+			return "reset";
+		}else {
+			User userReset = userService.findById(user.getId());
+			userReset.setResetToken(null);
+			userReset.setPassword(passwordEncoder.encode(user.getPassword()));
+			userService.save(userReset);
+			model.addAttribute("reset", "Reset OK");
+			logger.info("User password has been reset");
+		}
+		return "reset";
+	}
+	
+	@PostMapping("/user/forgot")
+	public String forgot(@ModelAttribute @Valid User user, BindingResult bindResult, Model model, HttpServletRequest request) {
+		User userToReset = userService.getUserByUsername(user.getEmail());	
+		if(userToReset == null) {
+			model.addAttribute("forgotEmail", " " + user.getEmail());
+			Enquiry enquiry = new Enquiry();
+			model.addAttribute("enquiry", enquiry);
+			return "resetFollowUp";
+		} else {
+			try {
+				String resetToken = UUID.randomUUID().toString();
+				String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort(); //development
+//				String appUrl = APP_URL; //production
+				SimpleMailMessage resetEmail = new SimpleMailMessage();
+				resetEmail.setFrom("no-replay@domain.com");
+				resetEmail.setTo(userToReset.getEmail());
+				resetEmail.setSubject("Enquiry System: Password Reset");
+				resetEmail.setText("To reset your password, please click the link below:\n"
+											+ appUrl + "/user/reset?resetToken=" + resetToken);
+				resetEmail.setFrom("noreply@domain.com");
+				emailService.sendEmail(resetEmail);
+				userToReset.setResetToken(resetToken);
+				userService.save(userToReset);
+				model.addAttribute("forgotOK", " " + userToReset.getEmail());
+				logger.info("email sent to: " + userToReset.getEmail());
+			}catch(Exception e) {
+				model.addAttribute("forgotError", 
+						"An error occurred while sending a password reset link. Please check your connection and try again.");
+				logger.info("sending email failed");
+			}
+		}
+		Enquiry enquiry = new Enquiry();
+		model.addAttribute("enquiry", enquiry);
+		return "resetFollowUp";
+	}
+	
+	
+}
+
+
+/*	
+	
+	
 	
 	@GetMapping("/confirm")
 	public String confirm(@RequestParam("token") String token, Model model) {
@@ -135,51 +206,7 @@ public class UserController {
 		return "registrationSuccess";		
 	}
 	
-	@GetMapping("/enabled")
-	public String enabled(Model model, Principal principal, RedirectAttributes redirect) {
-		String currentUserName = principal.getName();
-		User currentUser = userService.getUserByUsername(currentUserName);
-		redirect.addFlashAttribute("user", currentUser);
-		if(currentUser.isEnabled() == true) {
-			List<Contact> currentUserContacts = currentUser.getContacts();
-			redirect.addFlashAttribute("currentUserContacts", currentUserContacts);
-			logger.info("User enabled");
-			return "redirect:/contacts";
-		}else {
-			return "redirect:/disabled";
-		}
-	}
-	
-	@GetMapping("/disabled")
-	public String enabled(@ModelAttribute User currentUser, Model model, HttpServletRequest request) {
-		model.addAttribute("user", currentUser);
-		return "disabled";
-	}
-	
-	@PostMapping("/resend")
-	public String resend(@ModelAttribute User user, Model model, HttpServletRequest request) {
-		try {
-			User currentUser = userService.findById(user.getId());
-//			String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-			String appUrl = APP_URL;
-			SimpleMailMessage registrationEmail = new SimpleMailMessage();
-			registrationEmail.setFrom("no-replay@domain.com");
-			registrationEmail.setTo(currentUser.getEmail());
-			registrationEmail.setSubject("Registration Confirmation");
-			registrationEmail.setText("To confirm your e-mail address, please click the link below:\n"
-										+ appUrl + "/confirm?token=" + currentUser.getConfirmationToken());
-			registrationEmail.setFrom("noreply@domain.com");
-			emailService.sendEmail(registrationEmail);
-			model.addAttribute("user", currentUser);
-			model.addAttribute("confirmationMessage", "A confirmation e-mail has been sent to " + currentUser.getEmail());
-			logger.info("Confirmation link re-sent");
-			return "registrationConfirmation";
-		}catch(Exception e) {
-			model.addAttribute("emailerror", "error");
-			return "registration";
-		}
-	}
-	
+
 	
 	@GetMapping("/login")
 	public String login() {
@@ -259,57 +286,6 @@ public class UserController {
 	}
 	
 	
-	
-	@GetMapping("/updateDetails")
-	public String updateDetails(Model model, Principal principal) {
-		ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-		model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-		model.addAttribute("currentZone", currentZonedDateTime.getZone());
-		String currentUserName = principal.getName();
-		User currentUser = userService.getUserByUsername(currentUserName);
-		model.addAttribute("currentUser", currentUser);
-		Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-		model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-		List<Contact> resultContacts = new ArrayList<>();
-		model.addAttribute("currentUserContacts", resultContacts);
-		return "updateDetails";
-	}
-
-	
-	@PostMapping("/updateDetails")
-	public String updateDetails(@ModelAttribute ("currentUser") @Valid User user, BindingResult result, Model model, Principal principal, RedirectAttributes redirect) {
-		if (result.hasErrors()) {
-			ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-			model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-			model.addAttribute("currentZone", currentZonedDateTime.getZone());
-			String currentUserName = principal.getName();
-			User currentUser = userService.getUserByUsername(currentUserName);
-			model.addAttribute("currentUser", currentUser);
-			Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-			model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-			List<Contact> resultContacts = new ArrayList<>();
-			model.addAttribute("currentUserContacts", resultContacts);			
-			return "updateDetails";
-		}else {
-			String currentUserName = principal.getName();
-			User currentUser = userService.getUserByUsername(currentUserName);
-			if(!currentUserName.equals(user.getEmail())){
-				user.setId(currentUser.getId());
-				user.setRegistered(currentUser.getRegistered());
-				user.setRoles(currentUser.getRoles());
-				user.setPassword(passwordEncoder.encode(user.getPassword()));
-				user.setEnabled(true);
-				userService.save(user);
-				return "redirect:logout";
-			}
-			currentUser.setFirstName(user.getFirstName());
-			currentUser.setLastName(user.getLastName());
-			currentUser.setPassword(passwordEncoder.encode(user.getPassword()));
-			userService.save(currentUser);
-			model.addAttribute("currentUser", currentUser);
-			}
-		return "redirect:contacts";
-	}
 
 	@GetMapping("/logout")
 	public String logoutPage (HttpServletRequest request, HttpServletResponse response) {
@@ -321,129 +297,7 @@ public class UserController {
 	}
 */	
 	
-	/* Admin tools */
-/*	@PostMapping("/userPasswordReset")
-	public String userPasswordReset(@ModelAttribute User user, Model model, HttpServletRequest request, Principal principal) {
-		ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-		model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-		model.addAttribute("currentZone", currentZonedDateTime.getZone());
-		String currentUserName = principal.getName();
-		User currentUser = userService.getUserByUsername(currentUserName);
-		model.addAttribute("currentUser", currentUser);
-		Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-		model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-		List<Contact> resultContacts = new ArrayList<>();
-		model.addAttribute("currentUserContacts", resultContacts);
-		if(request.isUserInRole(ADMIN_ROLE)) {
-			List<User> users = userService.getAllUsersNoAdmins();
-			model.addAttribute("users", users);
-			logger.info("users size: " + users.size());
-		}
-		User userReset = userService.findById(user.getId());
-		if(userReset != null) {
-			try {
-				String token = UUID.randomUUID().toString();
-//				String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-				String appUrl = APP_URL;
-				SimpleMailMessage resetEmail = new SimpleMailMessage();
-				resetEmail.setFrom("no-replay@domain.com");
-				resetEmail.setTo(userReset.getEmail());
-				resetEmail.setSubject("Password Reset");
-				resetEmail.setText("To reset your password, please click the link below:\n"
-											+ appUrl + "/reset?token=" + token);
-				resetEmail.setFrom("noreply@domain.com");
-				emailService.sendEmail(resetEmail);
-				userReset.setConfirmationToken(token);
-				userService.save(userReset);
-				model.addAttribute("reset", "reset");
-				model.addAttribute("incorrect", null);
-				logger.info("email sent");
-			}catch(Exception e) {
-				model.addAttribute("emailerror", "error");
-				logger.info("email failed");
-				return "adminPanel";
-			}
-		}else {
-			model.addAttribute("reset", null);
-			model.addAttribute("incorrect", "incorrect");
-			logger.info("user's email not found");
-			return "adminPanel";
-		}
-		return "adminPanel";
-	}
-	
-	@PostMapping("/userEnable")
-	public String confirm(@ModelAttribute User user, Model model, HttpServletRequest request, Principal principal) {
-		ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-		model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-		model.addAttribute("currentZone", currentZonedDateTime.getZone());
-		String currentUserName = principal.getName();
-		User currentUser = userService.getUserByUsername(currentUserName);
-		model.addAttribute("currentUser", currentUser);
-		Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-		model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-		List<Contact> resultContacts = new ArrayList<>();
-		model.addAttribute("currentUserContacts", resultContacts);
-		if(request.isUserInRole(ADMIN_ROLE)) {
-			List<User> users = userService.getAllUsersNoAdmins();
-			model.addAttribute("users", users);
-			logger.info("users size: " + users.size());
-		}
-		User userReset = userService.findById(user.getId());
-		if(userReset.isEnabled()) {
-			userReset.setEnabled(false);
-		} else {
-			userReset.setEnabled(true);
-		}
-		userReset.setConfirmationToken(null);
-		userService.save(userReset);	
-//		model.addAttribute("user", userReset);
-		logger.info("User enabled/disabled");
-		return "adminPanel";	
-	}
-	
-	@PostMapping("/userSendConfirmation")
-	public String userSendConfirmation(@ModelAttribute User user, Model model, HttpServletRequest request, Principal principal) {
-		ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-		model.addAttribute("currentZonedDateTime", currentZonedDateTime);
-		model.addAttribute("currentZone", currentZonedDateTime.getZone());
-		String currentUserName = principal.getName();
-		User currentUser = userService.getUserByUsername(currentUserName);
-		model.addAttribute("currentUser", currentUser);
-		Integer contactsTotalByUser = contactService.getTotalByUser(currentUser);
-		model.addAttribute("contactsTotalByUser", contactsTotalByUser);
-		List<Contact> resultContacts = new ArrayList<>();
-		model.addAttribute("currentUserContacts", resultContacts);
-		if(request.isUserInRole(ADMIN_ROLE)) {
-			List<User> users = userService.getAllUsersNoAdmins();
-			model.addAttribute("users", users);
-			logger.info("users size: " + users.size());
-		}
-		try {
-			User resetUser = userService.findById(user.getId());
-//			String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-			String appUrl = APP_URL;
-			String token = UUID.randomUUID().toString();
-			SimpleMailMessage registrationEmail = new SimpleMailMessage();
-			registrationEmail.setFrom("no-replay@domain.com");
-			registrationEmail.setTo(resetUser.getEmail());
-			registrationEmail.setSubject("Registration Confirmation");
-			registrationEmail.setText("To confirm your e-mail address, please click the link below:\n"
-										+ appUrl + "/confirm?token=" + token);
-			registrationEmail.setFrom("noreply@domain.com");
-			emailService.sendEmail(registrationEmail);
-			resetUser.setConfirmationToken(token);
-			userService.save(resetUser);
-			model.addAttribute("user", resetUser);
-			model.addAttribute("confirmationMessage", "A confirmation e-mail has been sent to " + resetUser.getEmail());
-			logger.info("Confirmation link re-sent");
-			return "adminPanel";
-		}catch(Exception e) {
-			model.addAttribute("emailerror", "error");
-		}
-		return "adminPanel";
-	}
-*/
+
 
 
 

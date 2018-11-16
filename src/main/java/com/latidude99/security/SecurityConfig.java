@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -14,9 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-
-
-
 
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
@@ -33,27 +31,32 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	protected void configure(HttpSecurity http) throws Exception{
 		http
 			.authorizeRequests()
-				.antMatchers("/").permitAll()
-				.antMatchers("/enquiryForm*").permitAll()
+				.antMatchers(HttpMethod.GET, "/", "/static/**", "/js/**", "/css/**", "/images/**", "/public/**").permitAll()
+				.antMatchers("/user/forgot**").permitAll()
+				.antMatchers("/user/activate**").permitAll()
+				.antMatchers("/user/reset**").permitAll()
+				.antMatchers("/user/resetForm**").permitAll()
+				.antMatchers("/enquiry/form**").permitAll()
+				.antMatchers("/enquiry/form/uploadfail**").permitAll()
 				.antMatchers("/*").permitAll()
 				.antMatchers("/confirm*").permitAll()
 				.antMatchers("/forgot*").permitAll()
 				.antMatchers("/reset*").permitAll()
 				.antMatchers("/index*").permitAll()
 				.antMatchers("/terms*").permitAll()
-				.antMatchers("/userPasswordReset").hasAnyRole("ADMIN","USER")
-				.antMatchers("/enquiryList").hasAnyRole("ADMIN","USER")
-				.antMatchers("/enquiryPage").hasAnyRole("ADMIN","USER")
-				.antMatchers("/enquiryUser").hasAnyRole("ADMIN","USER")
-				.antMatchers("/enquiryAdmin").hasAnyRole("ADMIN","USER")
+				.antMatchers("/user/passwordreset").hasAnyRole("ADMIN","USER","APPADMIN")
+				.antMatchers("/enquiry/list").hasAnyRole("ADMIN","USER","APPADMIN")
+				.antMatchers("/enquiry/page").hasAnyRole("ADMIN","USER","APPADMIN")
+				.antMatchers("/enquiry/user").hasAnyRole("ADMIN","USER","APPADMIN")
+				.antMatchers("/enquiry/admin").hasAnyRole("ADMIN","USER","APPADMIN")
 				.anyRequest().authenticated()
 			.and()
 			.formLogin()
-				.loginPage("/login")
-			//	.loginProcessingUrl("/perform_login")
+				.loginPage("/enquiryForm")
+				.loginProcessingUrl("/enquiry/login")
 				.permitAll()
-				.defaultSuccessUrl("/enquiryList", true)
-				.failureUrl("/login.html?error=true")
+				.defaultSuccessUrl("/enquiry/list", true)
+				.failureUrl("/?error=true")
 			.and()
 				.rememberMe()
 				.userDetailsService(customUserDetailsService())

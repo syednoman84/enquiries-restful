@@ -16,6 +16,11 @@ import com.latidude99.repository.UserRepository;
 
 public class CustomUserDetailsService implements UserDetailsService {
 	
+	boolean enabled = true;
+    boolean accountNonExpired = true;
+    boolean credentialsNonExpired = true;
+    boolean accountNonLocked = true;
+	
 	private UserRepository userRepository;
 	
 	@Autowired
@@ -27,11 +32,15 @@ public class CustomUserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		User user = userRepository.findByEmail(username);
 		if(user == null)
-			throw new UsernameNotFoundException("User not found");
+			throw new UsernameNotFoundException("User not found" + username);
 		org.springframework.security.core.userdetails.User userDetails = 
 				new org.springframework.security.core.userdetails.User(
 						user.getEmail(), 
 						user.getPassword(), 
+						user.isEnabled(), // enabled
+				        accountNonExpired, 
+				        credentialsNonExpired, 
+				        !user.isBlocked(), // accountNonLocked
 						convertAuthorities(user.getRoles()));
 		return userDetails;
 	}
