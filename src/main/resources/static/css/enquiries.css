@@ -3,7 +3,10 @@ body {
     
 html, body, #map-canvas {height: 400px; width: 100%; padding: 0px}
 button {margin: 0 0 10px;}
-   
+
+.contentAll {min-height: calc(100vh - 100px);}
+.footer {height: 0px !important;}
+ 
 .container {background-color:white; margin-top:0px; margin-bottom:0px; padding-top:10px;}
 .navbar {margin-top:0px; margin-left:0px; margin-right:0px; background-color:white;}
 .jumbotron {background-color:white; position: relative; text-align: center; color: white;}
