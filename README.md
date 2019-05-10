@@ -26,7 +26,7 @@ Customer service enquiry system for a travel bookshop.
 ...coming 
 
 <p align="center">
-  <img src="images/enquiry_00a.JPG" width=100%>
+  <img src="images/enquiry_00b.JPG" width=100%>
 </p>
 
 
