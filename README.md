@@ -85,7 +85,7 @@ The application consist of two parts:
  
  ## Enquiry Management Side
  
- ### Main screen is composed of:
+ ### Main screen
  - information about number of enquiries waiting, being processed and total number of enquiries
  - a list of enquiries in a table
 Each enquiry (line) in the table include:
@@ -98,9 +98,10 @@ Each enquiry (line) in the table include:
 - closing date (if closed)
 - info icon telling if there is a polygon attached
 - info icon with a number of comments relevent to the enquiry
-- a button 'more...' taking you to a detailed enquiry page when clicked
+- a button 'more...' taking you to a detailed enquiry page when clicked (shows a pop-up with enquiry message on hoover)
 
 ### Detailed enquiry page
+Left Panel:
 - 
 
 # Status
