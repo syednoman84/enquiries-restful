@@ -1,4 +1,15 @@
 ##########################
+## Piotr
+##########################
+IGNORE_enquiries/
+IGNORE/
+
+application.properties
+
+dataindexdefault/
+
+
+##########################
 ## Java
 ##########################
 *.class
