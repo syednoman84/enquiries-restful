@@ -52,16 +52,17 @@ A small customer service enquiry system, geared towards map and travel bookshops
 
 # Setup
 
-Clone the repository to a folder on your computer and import it in your favourite IDE as a Maven project. 
-It uses Tomcat 9.0 as a web server.
+Clone the repository to a folder on your computer and import it in your favourite IDE as a Maven project. It uses Tomcat 9.0 as a web server so you need to set it up in your IDE as well.
 
 ### Build
 
 Run maven command: 'mvn clean package'. This should create an executable 'jar' with all libraries needed included.
 
 # Launch
-
-Double click on the executable 'jar' file. The application should be availavle at localhost://8080 in your Internet browser.
+You should have MySQL empty database named 'enquiries' up and running on your machine. The database should be availabe on the 3306 port - you can change the default settings in the 'application.properties' file. 
+Then, after successful build process navigate to the 'target/' folder of the project and run 'java -jar enquiry.jar' command. 
+The application should be availavle at localhost://8080 in your Internet browser. 
+In windows instead of command line you should also be able to double click the 'contacts.jar' file although you will not get any information about the start-up process and its possible failure. You can check in Task Manager if process is running (JVM process).
 
 
 # Features
@@ -70,7 +71,7 @@ The application consist of two parts:
  - customer side enquiry form
  - enquiry management side for customer service staff
  
- ### Customer Enquiry Form
+ ## Customer Enquiry Form
  - standard fields for customer first and last names, email address and a phone number
  - two-step validation for mandatory fields 
     - Javascript check for empty fields
@@ -82,10 +83,25 @@ The application consist of two parts:
  - information of the enuiry sending success or failure
  - login/password fields (with a 'Remember Me option) for enquiry management side
  
- ### Enquiry Management Side
- - main screen is composed of:
+ ## Enquiry Management Side
+ 
+ ### Main screen is composed of:
     - information about number of enquiries waiting, being processed and total number of enquiries
     - a list of enquiries in a table
+Each enquiry (line) in the table include:
+- customer's name
+- customer's email
+- enquiry type (guides, cistomised mapping etc.)
+- when it was created
+- enquiry status (waiting / in progress / closed)
+- last employeee dealing with the enquiry
+- closing date (if closed)
+- info icon telling if there is a polygon attached
+- info icon with a number of comments relevent to the enquiry
+- a button 'more...' taking you to a detailed enquiry page when clicked
+
+### Detailed enquiry page
+- 
 
 # Status
 - Development: Closed
