@@ -86,8 +86,8 @@ The application consist of two parts:
  ## Enquiry Management Side
  
  ### Main screen is composed of:
-    - information about number of enquiries waiting, being processed and total number of enquiries
-    - a list of enquiries in a table
+ - information about number of enquiries waiting, being processed and total number of enquiries
+ - a list of enquiries in a table
 Each enquiry (line) in the table include:
 - customer's name
 - customer's email
