@@ -2,7 +2,7 @@
 
 [![](https://img.shields.io/badge/release-1.2-blue.svg)](https://github.com/latidude99/enquiries/tree/master/release)
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![GitHub issues](https://img.shields.io/badge/issues-open%201-greenred.svg)](https://GitHub.com/latidude99/enquiries/issues/)
+[![GitHub issues](https://img.shields.io/badge/issues-open%202-greenred.svg)](https://GitHub.com/latidude99/enquiries/issues/)
 [![Maintenance](https://img.shields.io/badge/maintained-bug%20fixing%20only-green.svg)](https://GitHub.com/latidude99/enquiries/graphs/commit-activity)
 [![](https://img.shields.io/badge/%20$%20-buy%20me%20a%20coffe-yellow.svg)](https://www.buymeacoffee.com/zWn1I6bVf)
 
