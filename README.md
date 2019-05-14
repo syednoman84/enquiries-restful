@@ -162,6 +162,8 @@ The system does not allow users register themselves, this is a job for a system'
 - Bug fixing: Open
 
 # Screenshots
+
+The enquiries shown in the images are random and do not relate to the polygons shown in Google Maps.
 <p align="center">
   <img src="images/enquiries_02.JPG" width=100%>
   <img src="images/enquiries_02a.JPG" width=100%>
