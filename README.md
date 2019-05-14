@@ -2,7 +2,7 @@
 
 [![](https://img.shields.io/badge/release-1.2-blue.svg)](https://github.com/latidude99/enquiries/tree/master/release)
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![GitHub issues](https://img.shields.io/badge/issues-open%202-greenred.svg)](https://GitHub.com/latidude99/enquiries/issues/)
+[![GitHub issues](https://img.shields.io/badge/issues-open%203-greenred.svg)](https://GitHub.com/latidude99/enquiries/issues/)
 [![Maintenance](https://img.shields.io/badge/maintained-bug%20fixing%20only-green.svg)](https://GitHub.com/latidude99/enquiries/graphs/commit-activity)
 [![](https://img.shields.io/badge/%20$%20-buy%20me%20a%20coffe-yellow.svg)](https://www.buymeacoffee.com/zWn1I6bVf)
 
@@ -56,7 +56,7 @@ Clone the repository to a folder on your computer and import it in your favourit
 
 ### Build
 
-Run maven command: 'mvn clean package'. This should create an executable 'jar' with all libraries needed included.
+Run maven command: 'mvn clean package'. This should create an executable 'jar' with all the libraries needed, including Tomcat.
 
 # Launch
 You should have MySQL empty database named 'enquiries' up and running on your machine. The database should be availabe on the 3306 port - you can change the default settings in the 'application.properties' file. 
@@ -88,10 +88,11 @@ The application consist of two parts:
  ### Main screen
  - information about number of enquiries waiting, being processed and total number of enquiries
  - a list of enquiries in a table
+ 
 Each enquiry (line) in the table include:
 - customer's name
 - customer's email
-- enquiry type (guides, cistomised mapping etc.)
+- enquiry type (guides, customised mapping etc.)
 - when it was created
 - enquiry status (waiting / in progress / closed)
 - last employeee dealing with the enquiry
@@ -100,9 +101,62 @@ Each enquiry (line) in the table include:
 - info icon with a number of comments relevent to the enquiry
 - a button 'more...' taking you to a detailed enquiry page when clicked (shows a pop-up with enquiry message on hoover)
 
+Top panel above the table include:
+- enquiry loading options
+  - loading recent 100 enquiries (default) or custom number
+  - searching for individual enquiries by number (coma separated) or for a range of enquiries (dash separated) or both
+  - clearing displayed enquiry list
+  - searching for enquiries by criteria:
+   - search using enquiry's properties, including multiple combinations of the properties
+   - search using Apache Lucene search engine, options available:
+    - keyword exact match or keyword wild card match
+    - phrase exact match or fuzzy match
+    - phrase slop search
+    - simple query builder
+
+
 ### Detailed enquiry page
+
+Top Panel:
+- previous enquiry
+- next enquiry
+- go to enquiry + number
+- assign enquiry to yourself
+- remove your assignment
+- open / close the enquiry
+
 Left Panel:
-- 
+- options to open print friendly layout of the enquiry
+- save enquiry as PDF
+- email enquiry to your registered email address
+- summary of waiting / in progress / closed enquiries, including your enquiries
+
+Right Panel:
+- enquiry full info (customer' details, status, who is dealing with it, dates etc.)
+- actual enquiry message
+- polygon displayed in Google Maps (if there is any)
+- a table with attachnments with a preview option (modal)
+
+### User Page
+
+Allows for user's password change
+
+### Admin Page
+
+Allows system administrators to:
+- re-send an activation link to individual users
+- send password reset link
+- enable / disable users
+- block / unblock users
+- give users admin rights and take them back
+
+There is one built-in admin account (Super Admin) that cannot be changed by other admins.
+
+### Add User Page
+
+The system does not allow users register themselves, this is a job for system's administrators
+
+
 
 # Status
 - Development: Closed
