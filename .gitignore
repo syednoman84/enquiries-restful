@@ -7,7 +7,7 @@ IGNORE/
 application.properties
 
 dataindexdefault/
-
+!enquiries_v1.2.0.jar
 
 ##########################
 ## Java
