@@ -154,8 +154,7 @@ There is one built-in admin account (Super Admin) that cannot be changed by othe
 
 ### Add User Page
 
-The system does not allow users register themselves, this is a job for system's administrators
-
+The system does not allow users register themselves, this is a job for a system's administrators
 
 
 # Status
@@ -164,8 +163,18 @@ The system does not allow users register themselves, this is a job for system's 
 
 # Screenshots
 <p align="center">
-  <img src="images/" width=100%>
+  <img src="images/enquiries_02.JPG" width=100%>
+  <img src="images/enquiries_02a.JPG" width=100%>
+  <img src="images/enquiries_03.JPG" width=100%>
+  <img src="images/enquiries_03a.JPG" width=100%>
+  <img src="images/enquiries_04.JPG" width=100%>
+  <img src="images/enquiries_05.JPG" width=100%>
+  <img src="images/enquiries_06.JPG" width=100%>
 </p>
+
+
+
+
 
 # License
 Enquiry System is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
