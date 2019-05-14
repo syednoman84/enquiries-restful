@@ -106,7 +106,7 @@ Top panel above the table include:
   - load recent 100 enquiries (default) or custom number
   - search for individual enquiries by number (coma separated) or for a range of enquiries (dash separated) or both
   - clear displayed enquiry list
-  - criteria based search:
+- criteria based search:
    - using enquiry's properties, including multiple combinations of the properties
    - using Apache Lucene search engine, options implemented:
      - keyword exact match or keyword wild card match
