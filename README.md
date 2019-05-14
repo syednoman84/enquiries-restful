@@ -2,7 +2,7 @@
 
 [![](https://img.shields.io/badge/release-1.2-blue.svg)](https://github.com/latidude99/enquiries/tree/master/release)
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![GitHub issues](https://img.shields.io/badge/issues-open%202-greenred.svg)](https://GitHub.com/latidude99/enquiries/issues/)
+[![GitHub issues](https://img.shields.io/badge/issues-open%203-greenred.svg)](https://GitHub.com/latidude99/enquiries/issues/)
 [![Maintenance](https://img.shields.io/badge/maintained-bug%20fixing%20only-green.svg)](https://GitHub.com/latidude99/enquiries/graphs/commit-activity)
 [![](https://img.shields.io/badge/%20$%20-buy%20me%20a%20coffe-yellow.svg)](https://www.buymeacoffee.com/zWn1I6bVf)
 
@@ -56,7 +56,7 @@ Clone the repository to a folder on your computer and import it in your favourit
 
 ### Build
 
-Run maven command: 'mvn clean package'. This should create an executable 'jar' with all libraries needed included.
+Run maven command: 'mvn clean package'. This should create an executable 'jar' with all the libraries needed, including Tomcat.
 
 # Launch
 You should have MySQL empty database named 'enquiries' up and running on your machine. The database should be availabe on the 3306 port - you can change the default settings in the 'application.properties' file. 
@@ -72,26 +72,27 @@ The application consist of two parts:
  - enquiry management side for customer service staff
  
  ## Customer Enquiry Form
- - standard fields for customer first and last names, email address and a phone number
+ - standard fields for customer's first and last names, email address and a phone number
  - two-step validation for mandatory fields 
     - Javascript check for empty fields
-    - Spring Validation check for the email address  corectness
+    - Spring Validation check of the email address
  - drop-down list with options of the enquiry subject (Maps, Travel Literature, Guides, Customised Maps etc.)
  - message box for the actual enquiry text
  - Google Maps window with an option to draw/delete a polygon delineating the area of interest
  - option to attach up to three files (the limit is set as 1MB for each file at the moment)
- - information of the enuiry sending success or failure
- - login/password fields (with a 'Remember Me option) for enquiry management side
+ - enquiry submit info
+ - login/password fields (with a 'Remember Me option) for the enquiry management side
  
  ## Enquiry Management Side
  
  ### Main screen
  - information about number of enquiries waiting, being processed and total number of enquiries
  - a list of enquiries in a table
+ 
 Each enquiry (line) in the table include:
 - customer's name
 - customer's email
-- enquiry type (guides, cistomised mapping etc.)
+- enquiry type (guides, customised mapping etc.)
 - when it was created
 - enquiry status (waiting / in progress / closed)
 - last employeee dealing with the enquiry
@@ -100,18 +101,82 @@ Each enquiry (line) in the table include:
 - info icon with a number of comments relevent to the enquiry
 - a button 'more...' taking you to a detailed enquiry page when clicked (shows a pop-up with enquiry message on hoover)
 
+Top panel above the table include:
+- enquiry loading options
+  - load recent 100 enquiries (default) or custom number
+  - search for individual enquiries by number (coma separated) or for a range of enquiries (dash separated) or both
+  - clear displayed enquiry list
+- criteria based search:
+   - using enquiry's properties, including multiple combinations of the properties
+   - using Apache Lucene search engine, options implemented:
+     - keyword exact match or keyword wild card match
+     - phrase exact match or fuzzy match
+     - phrase slop search
+     - simple query builder
+
+
 ### Detailed enquiry page
+
+Top Panel:
+- previous enquiry
+- next enquiry
+- go to enquiry + number
+- assign enquiry to yourself
+- remove your assignment
+- open / close the enquiry
+
 Left Panel:
-- 
+- options to open print friendly layout of the enquiry
+- save enquiry as PDF
+- email enquiry to your registered email address
+- summary of waiting / in progress / closed enquiries, including your enquiries
+
+Right Panel:
+- enquiry full info (customer' details, status, who is dealing with it, dates etc.)
+- actual enquiry message
+- polygon displayed in Google Maps (if there is any)
+- a table with attachnments with a preview option (modal)
+
+### User Page
+
+Allows users for password change.
+
+### Admin Page
+
+Allows system administrators to:
+- re-send an activation link to individual users
+- send password reset link
+- enable / disable users
+- block / unblock users
+- give users admin rights and take them back
+
+There is one built-in admin account (Super Admin) that cannot be changed by other admins.
+
+### Add User Page
+
+The system does not allow users register themselves, this is a job for a system's administrators
+
 
 # Status
 - Development: Closed
 - Bug fixing: Open
 
 # Screenshots
+
+The enquiries shown in the images are random and do not relate to the polygons shown in Google Maps.
 <p align="center">
-  <img src="images/" width=100%>
+  <img src="images/enquiries_02.JPG" width=100%>
+  <img src="images/enquiries_02a.JPG" width=100%>
+  <img src="images/enquiries_03.JPG" width=100%>
+  <img src="images/enquiries_03a.JPG" width=100%>
+  <img src="images/enquiries_04.JPG" width=100%>
+  <img src="images/enquiries_05.JPG" width=100%>
+  <img src="images/enquiries_06.JPG" width=100%>
 </p>
+
+
+
+
 
 # License
 Enquiry System is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
