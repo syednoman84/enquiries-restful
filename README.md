@@ -72,16 +72,16 @@ The application consist of two parts:
  - enquiry management side for customer service staff
  
  ## Customer Enquiry Form
- - standard fields for customer first and last names, email address and a phone number
+ - standard fields for customer's first and last names, email address and a phone number
  - two-step validation for mandatory fields 
     - Javascript check for empty fields
-    - Spring Validation check for the email address  corectness
+    - Spring Validation check of the email address
  - drop-down list with options of the enquiry subject (Maps, Travel Literature, Guides, Customised Maps etc.)
  - message box for the actual enquiry text
  - Google Maps window with an option to draw/delete a polygon delineating the area of interest
  - option to attach up to three files (the limit is set as 1MB for each file at the moment)
- - information of the enuiry sending success or failure
- - login/password fields (with a 'Remember Me option) for enquiry management side
+ - enquiry submit info
+ - login/password fields (with a 'Remember Me option) for the enquiry management side
  
  ## Enquiry Management Side
  
@@ -103,16 +103,16 @@ Each enquiry (line) in the table include:
 
 Top panel above the table include:
 - enquiry loading options
-  - loading recent 100 enquiries (default) or custom number
-  - searching for individual enquiries by number (coma separated) or for a range of enquiries (dash separated) or both
-  - clearing displayed enquiry list
-  - searching for enquiries by criteria:
-   - search using enquiry's properties, including multiple combinations of the properties
-   - search using Apache Lucene search engine, options available:
-    - keyword exact match or keyword wild card match
-    - phrase exact match or fuzzy match
-    - phrase slop search
-    - simple query builder
+  - load recent 100 enquiries (default) or custom number
+  - search for individual enquiries by number (coma separated) or for a range of enquiries (dash separated) or both
+  - clear displayed enquiry list
+  - criteria based search:
+   - using enquiry's properties, including multiple combinations of the properties
+   - using Apache Lucene search engine, options implemented:
+     - keyword exact match or keyword wild card match
+     - phrase exact match or fuzzy match
+     - phrase slop search
+     - simple query builder
 
 
 ### Detailed enquiry page
@@ -139,7 +139,7 @@ Right Panel:
 
 ### User Page
 
-Allows for user's password change
+Allows users for password change.
 
 ### Admin Page
 
