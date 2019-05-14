@@ -204,7 +204,7 @@
 	      e.overlay.getPath().push(closingPoint);
 	      var pathEncoded = google.maps.geometry.encoding.encodePath(e.overlay.getPath());		  
    		  var uriStatic = "https://maps.googleapis.com/maps/api/staticmap?size=900x1500&path=weight:3|color:blue|fillcolor:0xFFFF0033|enc:";
-   		  var key = "&key=AIzaSyBNNbg8vsML_WMD3b39yAVffUAV2D5PNuM"
+   		  var key = "&key=XXX"
    		  var polygonStaticLink = uriStatic + pathEncoded +key;
    		  
 //   		  console.log("polygon closed: " + e.overlay.getPath().getArray());		  
