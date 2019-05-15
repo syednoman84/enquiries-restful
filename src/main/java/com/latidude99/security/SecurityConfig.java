@@ -1,3 +1,22 @@
+/**Copyright (C) 2018-2019  Piotr Czapik.
+ * @author Piotr Czapik
+ *
+ *  This file is part of EnquirySystem.
+ *  EnquirySystem is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  EnquirySystem is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with EnquirySystem.  If not, see <http://www.gnu.org/licenses/>
+ *  or write to: latidude99@gmail.com
+ */
+
 package com.latidude99.security;
 
 
@@ -18,15 +37,15 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
-	
+
 	@Autowired
 	public DataSource dataSource;
-	
+
 	@Bean
 	public UserDetailsService customUserDetailsService() {
 		return new CustomUserDetailsService();
 	}
-		
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception{
 		http
@@ -70,15 +89,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				.logoutSuccessUrl("/")
 				.permitAll()
 			;
-	}		
-	
+	}
+
 	@Bean
 	public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
         return tokenRepository;
     }
-	
+
 	 @Bean
 		public PasswordEncoder passwordEncoder(){
 			PasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -89,7 +108,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(customUserDetailsService()).passwordEncoder(passwordEncoder());
 	}
-	
+
 }
 
 

@@ -1,3 +1,24 @@
+/**
+ * Copyright (C) 2018-2019  Piotr Czapik.
+ *
+ * @author Piotr Czapik
+ * <p>
+ * This file is part of EnquirySystem.
+ * EnquirySystem is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * EnquirySystem is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with EnquirySystem.  If not, see <http://www.gnu.org/licenses/>
+ * or write to: latidude99@gmail.com
+ */
+
 package com.latidude99.web.controller;
 
 import java.io.IOException;
@@ -37,418 +58,413 @@ import com.latidude99.util.PdfCreator;
 
 @Controller
 public class EnquiryController {
-	private static final Logger logger = LoggerFactory.getLogger(EnquiryController.class);
-	private final String baseUrl = "http://localhost:8080/"; // development
+    private static final Logger logger = LoggerFactory.getLogger(EnquiryController.class);
+    private final String baseUrl = "http://localhost:8080/"; // development
 //	private final String baseUrl = "http://enquiry.latidude99.com/"; // production
-	
-	@Autowired
-	UserService userService;
-	
-	@Autowired
-	EnquiryService enquiryService;
-	
-	@Autowired
-	EmailService emailService;
-		
-	@Autowired
-	EnquiryListWrapper enquiryListWrapper;
-	
-	@ModelAttribute("formBean")
-	public FormBean createFormBean() {
-	  FormBean formBean = new FormBean();
-	  formBean.setSelector("0");
-//	  formBean.setNumber(100);
-	  return formBean;
-	}
-	
 
-	@GetMapping("/enquiry/form/uploadfail")
-	public String uploadFail(RedirectAttributes redirect) {
-		redirect.addFlashAttribute("uploadFail", "File upload failed, at least one of the attachments is larger than the limit (512KB/0.5MB).");
-		return "redirect:/enquiry/form";
-	}
-	
-	@GetMapping("/enquiry/form")
-	public String enquiryForm(@ModelAttribute String uploadFail, Model model) {
-		Enquiry enquiry = new Enquiry();
-		model.addAttribute("enquiry", enquiry);
-		model.addAttribute("user", new User());
-		model.addAttribute("uploadFail", "File upload failed, at least one of the attachments is larger than the limit (512KB/0.5MB).");
-		return "enquiryForm";
-	}
-	
-	@PostMapping("/enquiry/form")
-	public String enquiryAdd(@ModelAttribute @Valid Enquiry enquiry, BindingResult result, 
-			@RequestParam MultipartFile[] files, Model model) {
-		model.addAttribute("user", new User());
-		if(result.hasErrors()) {
-			List<FieldError> errors = result.getFieldErrors();
-	        for (FieldError error : errors ) {
-	            System.out.println (error.getObjectName() + " - " + error.getDefaultMessage());
-	        }
-			return "enquiryForm";
-		}else {
-			Enquiry enquiryToSave = new Enquiry();
-			enquiryToSave.setName(enquiry.getName());
-			enquiryToSave.setEmail(enquiry.getEmail());
-			if(enquiry.getPhone() != null)
-				enquiryToSave.setPhone(enquiry.getPhone());
-			enquiryToSave.setType(enquiry.getType());
-			enquiryToSave.setMessage(enquiry.getMessage());
-			enquiryToSave.setPolygon(enquiryService.convertRoundBracketToSquareCoordsArrayString(enquiry.getPolygon()));
-			enquiryToSave.setPolygonEncoded(enquiry.getPolygonEncoded());
-			enquiryToSave.setCreatedDate(ZonedDateTime.now());
-			enquiryToSave.setStatus("waiting");
-			System.out.println("files.length: " + files.length);
-			try {
-				if(files != null && files.length > 0) {
-					int filesNumber = files.length;
-					for(int i = 0; i < filesNumber; i++) {
-						System.out.println("file number: " + i);
-						if(files[i] != null && files[i].getSize() > 0) {
-							Attachment attachment = new Attachment();
-							attachment.setName(files[i].getOriginalFilename());
-							attachment.setSize(files[i].getSize() / 1024); // in KB
-							attachment.setMimetype(files[i].getContentType());
-							attachment.setEnquiry(enquiryToSave);
-							attachment.setFile(files[i].getBytes());
-							enquiryToSave.addAttachment(attachment);
-						}	
-					}
-				}
-			}catch (IOException e) {
-				model.addAttribute("uploadError", "00ps! Something went wrong, try again");
-				model.addAttribute("uploadErrorMessage", e.getMessage());
-				return "enquirySubmit";
-			}
-			try {
-				byte[] imageByteArray = enquiryService.imageUrlToByteArray(enquiry.getPolygonEncoded());
-				enquiryToSave.setImage(imageByteArray);
-			}catch(IOException e) {
-				System.err.println("Error saving static Google Map Polygon image, "
-						+ e.getMessage() + ", " + e.getCause() + ", " + e.getLocalizedMessage());
-				
-			}
-		
-			enquiryService.save(enquiryToSave);
-			Enquiry enquiryCheck = enquiryService.getById(enquiryToSave.getId());
-			if(enquiryCheck.getAttachments() != null)
-				System.out.println(enquiryCheck.getAttachments().size());
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    EnquiryService enquiryService;
+
+    @Autowired
+    EmailService emailService;
+
+    @Autowired
+    EnquiryListWrapper enquiryListWrapper;
+
+    @ModelAttribute("formBean")
+    public FormBean createFormBean() {
+        FormBean formBean = new FormBean();
+        formBean.setSelector("0");
+//	  formBean.setNumber(100);
+        return formBean;
+    }
+
+
+    @GetMapping("/enquiry/form/uploadfail")
+    public String uploadFail(RedirectAttributes redirect) {
+        redirect.addFlashAttribute("uploadFail", "File upload failed, at least one of the attachments is larger than the limit (512KB/0.5MB).");
+        return "redirect:/enquiry/form";
+    }
+
+    @GetMapping("/enquiry/form")
+    public String enquiryForm(@ModelAttribute String uploadFail, Model model) {
+        Enquiry enquiry = new Enquiry();
+        model.addAttribute("enquiry", enquiry);
+        model.addAttribute("user", new User());
+        model.addAttribute("uploadFail", "File upload failed, at least one of the attachments is larger than the limit (512KB/0.5MB).");
+        return "enquiryForm";
+    }
+
+    @PostMapping("/enquiry/form")
+    public String enquiryAdd(@ModelAttribute @Valid Enquiry enquiry, BindingResult result, @RequestParam MultipartFile[] files, Model model) {
+        model.addAttribute("user", new User());
+        if (result.hasErrors()) {
+            List<FieldError> errors = result.getFieldErrors();
+            for (FieldError error : errors) {
+                System.out.println(error.getObjectName() + " - " + error.getDefaultMessage());
+            }
+            return "enquiryForm";
+        } else {
+            Enquiry enquiryToSave = new Enquiry();
+            enquiryToSave.setName(enquiry.getName());
+            enquiryToSave.setEmail(enquiry.getEmail());
+            if (enquiry.getPhone() != null) enquiryToSave.setPhone(enquiry.getPhone());
+            enquiryToSave.setType(enquiry.getType());
+            enquiryToSave.setMessage(enquiry.getMessage());
+            enquiryToSave.setPolygon(enquiryService.convertRoundBracketToSquareCoordsArrayString(enquiry.getPolygon()));
+            enquiryToSave.setPolygonEncoded(enquiry.getPolygonEncoded());
+            enquiryToSave.setCreatedDate(ZonedDateTime.now());
+            enquiryToSave.setStatus("waiting");
+            System.out.println("files.length: " + files.length);
+            try {
+                if (files != null && files.length > 0) {
+                    int filesNumber = files.length;
+                    for (int i = 0; i < filesNumber; i++) {
+                        System.out.println("file number: " + i);
+                        if (files[i] != null && files[i].getSize() > 0) {
+                            Attachment attachment = new Attachment();
+                            attachment.setName(files[i].getOriginalFilename());
+                            attachment.setSize(files[i].getSize() / 1024); // in KB
+                            attachment.setMimetype(files[i].getContentType());
+                            attachment.setEnquiry(enquiryToSave);
+                            attachment.setFile(files[i].getBytes());
+                            enquiryToSave.addAttachment(attachment);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                model.addAttribute("uploadError", "00ps! Something went wrong, try again");
+                model.addAttribute("uploadErrorMessage", e.getMessage());
+                return "enquirySubmit";
+            }
+            try {
+                byte[] imageByteArray = enquiryService.imageUrlToByteArray(enquiry.getPolygonEncoded());
+                enquiryToSave.setImage(imageByteArray);
+            } catch (IOException e) {
+                System.err.println("Error saving static Google Map Polygon image, " + e.getMessage() + ", " + e.getCause() + ", " + e.getLocalizedMessage());
+
+            }
+
+            enquiryService.save(enquiryToSave);
+            Enquiry enquiryCheck = enquiryService.getById(enquiryToSave.getId());
+            if (enquiryCheck.getAttachments() != null)
+                System.out.println(enquiryCheck.getAttachments().size());
 //			System.out.println(enquiryCheck.getAttachment1().length);
 //			System.out.println(enquiryCheck.getAttachment2().length);
 //			System.out.println(enquiryCheck.getAttachment3().length);
-		}
-		System.out.println("polygon round brackets: " + enquiry.getPolygon());
-		System.out.println("polygon square brackets: "
-				+ enquiryService.convertRoundBracketToSquareCoordsArrayString(enquiry.getPolygon()));
-		return "enquirySubmit";
-	}
-	
-	@PostMapping("/enquiry/page")
-	public String enquiryPage(@ModelAttribute Enquiry enquiry, Model model, Principal principal, HttpServletResponse response) {
-		User currentUser = userService.getUserByUsername(principal.getName());
-		model.addAttribute("currentUser", currentUser);
-		Long waiting = enquiryService.getNumByStatus("waiting");
-		model.addAttribute("waiting", waiting);
-		Long opened = enquiryService.getNumByStatus("in progress");
-		model.addAttribute("opened", opened);
-		Long closed = enquiryService.getNumByStatus("closed");
-		model.addAttribute("closed", closed);
-		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
-		model.addAttribute("openedByUser", openedByUser);
-		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
-		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
-		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
-		model.addAttribute("closedByUser", closedByUser);
-		Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
-		enquiryService.sortProgressUsers(enquiryToView);
-		model.addAttribute("enquiry", enquiryToView);
-		model.addAttribute("imageDbUrl", baseUrl + "image/" + enquiryToView.getId());
-		model.addAttribute("email", null);
-		model.addAttribute("emailFail", null);
-		System.out.println("imageDbUrl: " + baseUrl + "image/" + enquiryToView.getId());
-		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
+        }
+        System.out.println("polygon round brackets: " + enquiry.getPolygon());
+        System.out.println("polygon square brackets: " + enquiryService.convertRoundBracketToSquareCoordsArrayString(enquiry.getPolygon()));
+        return "enquirySubmit";
+    }
+
+    @PostMapping("/enquiry/page")
+    public String enquiryPage(@ModelAttribute Enquiry enquiry, Model model, Principal principal, HttpServletResponse response) {
+        User currentUser = userService.getUserByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser);
+        Long waiting = enquiryService.getNumByStatus("waiting");
+        model.addAttribute("waiting", waiting);
+        Long opened = enquiryService.getNumByStatus("in progress");
+        model.addAttribute("opened", opened);
+        Long closed = enquiryService.getNumByStatus("closed");
+        model.addAttribute("closed", closed);
+        Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+        model.addAttribute("openedByUser", openedByUser);
+        int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+        model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+        Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+        model.addAttribute("closedByUser", closedByUser);
+        Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
+        enquiryService.sortProgressUsers(enquiryToView);
+        model.addAttribute("enquiry", enquiryToView);
+        model.addAttribute("imageDbUrl", baseUrl + "image/" + enquiryToView.getId());
+        model.addAttribute("email", null);
+        model.addAttribute("emailFail", null);
+        System.out.println("imageDbUrl: " + baseUrl + "image/" + enquiryToView.getId());
+        enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
 //		center: new google.maps.LatLng(52.798, -1.299),
-		return "enquiryPage";
-	}
-	
-	@PostMapping("/enquiry/comment")
-	public String enquiryComment(@ModelAttribute FormBean formBean, Model model, Principal principal, HttpServletResponse response, FormBean fromBean) {
-		User currentUser = userService.getUserByUsername(principal.getName());
-		model.addAttribute("currentUser", currentUser);
-		Long waiting = enquiryService.getNumByStatus("waiting");
-		model.addAttribute("waiting", waiting);
-		Long opened = enquiryService.getNumByStatus("in progress");
-		model.addAttribute("opened", opened);
-		Long closed = enquiryService.getNumByStatus("closed");
-		model.addAttribute("closed", closed);
-		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
-		model.addAttribute("openedByUser", openedByUser);
-		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
-		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
-		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
-		model.addAttribute("closedByUser", closedByUser);
-		Enquiry enquiryToView = enquiryService.saveComment(fromBean);
-		enquiryService.sortProgressUsers(enquiryToView);
-		model.addAttribute("enquiry", enquiryToView);
-		model.addAttribute("imageDbUrl", baseUrl + "image/" + enquiryToView.getId());
-		model.addAttribute("email", null);
-		model.addAttribute("emailFail", null);
-		System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
-		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
+        return "enquiryPage";
+    }
+
+    @PostMapping("/enquiry/comment")
+    public String enquiryComment(@ModelAttribute FormBean formBean, Model model, Principal principal, HttpServletResponse response, FormBean fromBean) {
+        User currentUser = userService.getUserByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser);
+        Long waiting = enquiryService.getNumByStatus("waiting");
+        model.addAttribute("waiting", waiting);
+        Long opened = enquiryService.getNumByStatus("in progress");
+        model.addAttribute("opened", opened);
+        Long closed = enquiryService.getNumByStatus("closed");
+        model.addAttribute("closed", closed);
+        Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+        model.addAttribute("openedByUser", openedByUser);
+        int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+        model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+        Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+        model.addAttribute("closedByUser", closedByUser);
+        Enquiry enquiryToView = enquiryService.saveComment(fromBean);
+        enquiryService.sortProgressUsers(enquiryToView);
+        model.addAttribute("enquiry", enquiryToView);
+        model.addAttribute("imageDbUrl", baseUrl + "image/" + enquiryToView.getId());
+        model.addAttribute("email", null);
+        model.addAttribute("emailFail", null);
+        System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
+        enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
 //		center: new google.maps.LatLng(52.798, -1.299),
-		return "enquiryPage";
-	}
-	
-	@PostMapping("/enquiry/email")
-	public String enquiryEmail(@ModelAttribute Enquiry enquiry, Model model, Principal principal, HttpServletResponse response) {
-		User currentUser = userService.getUserByUsername(principal.getName());
-		model.addAttribute("currentUser", currentUser);
-		Long waiting = enquiryService.getNumByStatus("waiting");
-		model.addAttribute("waiting", waiting);
-		Long opened = enquiryService.getNumByStatus("in progress");
-		model.addAttribute("opened", opened);
-		Long closed = enquiryService.getNumByStatus("closed");
-		model.addAttribute("closed", closed);
-		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
-		model.addAttribute("openedByUser", openedByUser);
-		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
-		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
-		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
-		model.addAttribute("closedByUser", closedByUser);
-		Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
-		enquiryService.sortProgressUsers(enquiryToView);
-		model.addAttribute("enquiry", enquiryToView);
-		model.addAttribute("imageDbUrl", baseUrl + "image/" + enquiryToView.getId());
-		try {
-			emailService.sendSimpleMessage(enquiryToView, currentUser);
-			model.addAttribute("email", "The enquiry has been successfully emailed to: ");
-		}catch (Exception e) {
-			model.addAttribute("emailFail", "Sending the email failed, please check your Internet connection and try again");
-		}
-				
-		System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
-		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
+        return "enquiryPage";
+    }
+
+    @PostMapping("/enquiry/email")
+    public String enquiryEmail(@ModelAttribute Enquiry enquiry, Model model, Principal principal, HttpServletResponse response) {
+        User currentUser = userService.getUserByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser);
+        Long waiting = enquiryService.getNumByStatus("waiting");
+        model.addAttribute("waiting", waiting);
+        Long opened = enquiryService.getNumByStatus("in progress");
+        model.addAttribute("opened", opened);
+        Long closed = enquiryService.getNumByStatus("closed");
+        model.addAttribute("closed", closed);
+        Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+        model.addAttribute("openedByUser", openedByUser);
+        int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+        model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+        Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+        model.addAttribute("closedByUser", closedByUser);
+        Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
+        enquiryService.sortProgressUsers(enquiryToView);
+        model.addAttribute("enquiry", enquiryToView);
+        model.addAttribute("imageDbUrl", baseUrl + "image/" + enquiryToView.getId());
+        try {
+            emailService.sendSimpleMessage(enquiryToView, currentUser);
+            model.addAttribute("email", "The enquiry has been successfully emailed to: ");
+        } catch (Exception e) {
+            model.addAttribute("emailFail", "Sending the email failed, please check your Internet connection and try again");
+        }
+
+        System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
+        enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
 //		center: new google.maps.LatLng(52.798, -1.299),
-		return "enquiryPage";
-	}
-	
-	
-	
-	@PostMapping("/enquiry/page/goto")
-	public String enquiryPageGoto(@ModelAttribute FormBean formBean, Model model, Principal principal, HttpServletResponse response) {
-		User currentUser = userService.getUserByUsername(principal.getName());
-		model.addAttribute("currentUser", currentUser);
-		Long waiting = enquiryService.getNumByStatus("waiting");
-		model.addAttribute("waiting", waiting);
-		Long opened = enquiryService.getNumByStatus("in progress");
-		model.addAttribute("opened", opened);
-		Long closed = enquiryService.getNumByStatus("closed");
-		model.addAttribute("closed", closed);
-		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
-		model.addAttribute("openedByUser", openedByUser);
-		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
-		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
-		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
-		model.addAttribute("closedByUser", closedByUser);
-		Enquiry enquiryToView = enquiryService.getById(formBean.getNumber());
-		if(enquiryToView != null) {
-			enquiryService.sortProgressUsers(enquiryToView);
-		}else {
-			enquiryToView = new Enquiry();
-			enquiryToView.setId(formBean.getNumber());
-			enquiryToView.setType("---------------  THERE IS NO ENQUIRY NUMBER: " + formBean.getNumber() + "  ---------------");
-		}
+        return "enquiryPage";
+    }
+
+
+    @PostMapping("/enquiry/page/goto")
+    public String enquiryPageGoto(@ModelAttribute FormBean formBean, Model model, Principal principal, HttpServletResponse response) {
+        User currentUser = userService.getUserByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser);
+        Long waiting = enquiryService.getNumByStatus("waiting");
+        model.addAttribute("waiting", waiting);
+        Long opened = enquiryService.getNumByStatus("in progress");
+        model.addAttribute("opened", opened);
+        Long closed = enquiryService.getNumByStatus("closed");
+        model.addAttribute("closed", closed);
+        Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+        model.addAttribute("openedByUser", openedByUser);
+        int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+        model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+        Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+        model.addAttribute("closedByUser", closedByUser);
+        Enquiry enquiryToView = enquiryService.getById(formBean.getNumber());
+        if (enquiryToView != null) {
+            enquiryService.sortProgressUsers(enquiryToView);
+        } else {
+            enquiryToView = new Enquiry();
+            enquiryToView.setId(formBean.getNumber());
+            enquiryToView.setType("---------------  THERE IS NO ENQUIRY NUMBER: " + formBean.getNumber() + "  ---------------");
+        }
 //		enquiryService.sortProgressUsers(enquiryToView);
-		model.addAttribute("enquiry", enquiryToView);
-		model.addAttribute("email", null);
-		model.addAttribute("emailFail", null);
-		System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
+        model.addAttribute("enquiry", enquiryToView);
+        model.addAttribute("email", null);
+        model.addAttribute("emailFail", null);
+        System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
 //		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
 
-		return "enquiryPage";
-	}
-	
-	@PostMapping("/enquiry/page/next")
-	public String enquiryPageNext(@ModelAttribute Enquiry enquiry, Model model, Principal principal, HttpServletResponse response) {
-		User currentUser = userService.getUserByUsername(principal.getName());
-		model.addAttribute("currentUser", currentUser);
-		Long waiting = enquiryService.getNumByStatus("waiting");
-		model.addAttribute("waiting", waiting);
-		Long opened = enquiryService.getNumByStatus("in progress");
-		model.addAttribute("opened", opened);
-		Long closed = enquiryService.getNumByStatus("closed");
-		model.addAttribute("closed", closed);
-		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
-		model.addAttribute("openedByUser", openedByUser);
-		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
-		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
-		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
-		model.addAttribute("closedByUser", closedByUser);
-		Enquiry enquiryToView = enquiryService.getById(enquiry.getId() + 1);
-		if(enquiryToView != null) {
-			enquiryService.sortProgressUsers(enquiryToView);
-		}else {
-			enquiryToView = new Enquiry();
-			enquiryToView.setId(enquiry.getId() + 1);
-			enquiryToView.setType("---------------  THERE IS NO ENQUIRY NUMBER: " + (enquiry.getId() + 1) + "  ---------------");
-		}
-		model.addAttribute("enquiry", enquiryToView);
-		model.addAttribute("email", null);
-		model.addAttribute("emailFail", null);
+        return "enquiryPage";
+    }
+
+    @PostMapping("/enquiry/page/next")
+    public String enquiryPageNext(@ModelAttribute Enquiry enquiry, Model model, Principal principal, HttpServletResponse response) {
+        User currentUser = userService.getUserByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser);
+        Long waiting = enquiryService.getNumByStatus("waiting");
+        model.addAttribute("waiting", waiting);
+        Long opened = enquiryService.getNumByStatus("in progress");
+        model.addAttribute("opened", opened);
+        Long closed = enquiryService.getNumByStatus("closed");
+        model.addAttribute("closed", closed);
+        Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+        model.addAttribute("openedByUser", openedByUser);
+        int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+        model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+        Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+        model.addAttribute("closedByUser", closedByUser);
+        Enquiry enquiryToView = enquiryService.getById(enquiry.getId() + 1);
+        if (enquiryToView != null) {
+            enquiryService.sortProgressUsers(enquiryToView);
+        } else {
+            enquiryToView = new Enquiry();
+            enquiryToView.setId(enquiry.getId() + 1);
+            enquiryToView.setType("---------------  THERE IS NO ENQUIRY NUMBER: " + (enquiry.getId() + 1) + "  ---------------");
+        }
+        model.addAttribute("enquiry", enquiryToView);
+        model.addAttribute("email", null);
+        model.addAttribute("emailFail", null);
 //		System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
 //		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
 
-		return "enquiryPage";
-	}
-	
-	@PostMapping("/enquiry/page/previous")
-	public String enquiryPagePrevious(@ModelAttribute Enquiry enquiry, Model model, Principal principal, HttpServletResponse response) {
-		User currentUser = userService.getUserByUsername(principal.getName());
-		model.addAttribute("currentUser", currentUser);
-		Long waiting = enquiryService.getNumByStatus("waiting");
-		model.addAttribute("waiting", waiting);
-		Long opened = enquiryService.getNumByStatus("in progress");
-		model.addAttribute("opened", opened);
-		Long closed = enquiryService.getNumByStatus("closed");
-		model.addAttribute("closed", closed);
-		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
-		model.addAttribute("openedByUser", openedByUser);
-		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
-		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
-		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
-		model.addAttribute("closedByUser", closedByUser);
-		Enquiry enquiryToView = enquiryService.getById(enquiry.getId() - 1);
-		if(enquiryToView != null) {
-			enquiryService.sortProgressUsers(enquiryToView);
-		}else {
-			enquiryToView = new Enquiry();
-			enquiryToView.setId(enquiry.getId() - 1);
-			enquiryToView.setType("---------------  THERE IS NO ENQUIRY NUMBER: " + (enquiry.getId() - 1) + "  ---------------");
-		}
-		model.addAttribute("enquiry", enquiryToView);
-		model.addAttribute("email", null);
-		model.addAttribute("emailFail", null);
+        return "enquiryPage";
+    }
+
+    @PostMapping("/enquiry/page/previous")
+    public String enquiryPagePrevious(@ModelAttribute Enquiry enquiry, Model model, Principal principal, HttpServletResponse response) {
+        User currentUser = userService.getUserByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser);
+        Long waiting = enquiryService.getNumByStatus("waiting");
+        model.addAttribute("waiting", waiting);
+        Long opened = enquiryService.getNumByStatus("in progress");
+        model.addAttribute("opened", opened);
+        Long closed = enquiryService.getNumByStatus("closed");
+        model.addAttribute("closed", closed);
+        Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+        model.addAttribute("openedByUser", openedByUser);
+        int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+        model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+        Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+        model.addAttribute("closedByUser", closedByUser);
+        Enquiry enquiryToView = enquiryService.getById(enquiry.getId() - 1);
+        if (enquiryToView != null) {
+            enquiryService.sortProgressUsers(enquiryToView);
+        } else {
+            enquiryToView = new Enquiry();
+            enquiryToView.setId(enquiry.getId() - 1);
+            enquiryToView.setType("---------------  THERE IS NO ENQUIRY NUMBER: " + (enquiry.getId() - 1) + "  ---------------");
+        }
+        model.addAttribute("enquiry", enquiryToView);
+        model.addAttribute("email", null);
+        model.addAttribute("emailFail", null);
 //		System.out.println("POST  /enquiry/page -> " + enquiryListWrapper.getEnquiryList().size());
 //		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate().size()));
 
-		return "enquiryPage";
-	}
-	
-	@PostMapping("/enquiry/assign")
-	public String assign(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
-		User currentUser = userService.getUserByUsername(principal.getName());
-		model.addAttribute("currentUser", currentUser);
-		Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
-		enquiryToView.addProgressUser(currentUser);
-		enquiryToView.setStatus("in progress");
-		enquiryService.save(enquiryToView);
-		enquiryService.sortProgressUsers(enquiryToView);
-		Long waiting = enquiryService.getNumByStatus("waiting");
-		model.addAttribute("waiting", waiting);
-		Long opened = enquiryService.getNumByStatus("in progress");
-		model.addAttribute("opened", opened);
-		Long closed = enquiryService.getNumByStatus("closed");
-		model.addAttribute("closed", closed);
-		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
-		model.addAttribute("openedByUser", openedByUser);
-		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
-		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
-		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
-		model.addAttribute("closedByUser", closedByUser);
-		model.addAttribute("enquiry", enquiryToView);
-		model.addAttribute("email", null);
-		model.addAttribute("emailFail", null);
-		return "enquiryPage";	
-	}
-	
-	@PostMapping("/enquiry/deassign")
-	public String deassign(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
-		User currentUser = userService.getUserByUsername(principal.getName());
-		model.addAttribute("currentUser", currentUser);
-		Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
-		enquiryToView.removeProgressUser(currentUser);
-		if(enquiryToView.getProgressUser().isEmpty()) {
-			enquiryToView.setStatus("waiting");
-		}else {
-			enquiryToView.setStatus("in progress");
-		}
-		enquiryService.save(enquiryToView);
-		enquiryService.sortProgressUsers(enquiryToView);
-		Long waiting = enquiryService.getNumByStatus("waiting");
-		model.addAttribute("waiting", waiting);
-		Long opened = enquiryService.getNumByStatus("in progress");
-		model.addAttribute("opened", opened);
-		Long closed = enquiryService.getNumByStatus("closed");
-		model.addAttribute("closed", closed);
-		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
-		model.addAttribute("openedByUser", openedByUser);
-		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
-		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
-		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
-		model.addAttribute("closedByUser", closedByUser);
-		model.addAttribute("enquiry", enquiryToView);
-		model.addAttribute("email", null);
-		model.addAttribute("emailFail", null);
-		return "enquiryPage";	
-	}
-	
-	@PostMapping("/enquiry/close")
-	public String close(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
-		User currentUser = userService.getUserByUsername(principal.getName());
-		model.addAttribute("currentUser", currentUser);
-		Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
-		enquiryToView.setClosingUser(currentUser);
-		enquiryToView.setClosedDate(ZonedDateTime.now());
-		enquiryToView.setStatus("closed");
-		enquiryService.save(enquiryToView);
-		enquiryService.sortProgressUsers(enquiryToView);
-		Long waiting = enquiryService.getNumByStatus("waiting");
-		model.addAttribute("waiting", waiting);
-		Long opened = enquiryService.getNumByStatus("in progress");
-		model.addAttribute("opened", opened);
-		Long closed = enquiryService.getNumByStatus("closed");
-		model.addAttribute("closed", closed);
-		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
-		model.addAttribute("openedByUser", openedByUser);
-		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
-		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
-		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
-		model.addAttribute("closedByUser", closedByUser);
-		model.addAttribute("enquiry", enquiryToView);
-		model.addAttribute("email", null);
-		model.addAttribute("emailFail", null);
-		return "enquiryPage";
-	}
-	
-	@PostMapping("/enquiry/open")
-	public String open(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
-		User currentUser = userService.getUserByUsername(principal.getName());
-		model.addAttribute("currentUser", currentUser);
-		Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
-		enquiryToView.setStatus("in progress");
-		enquiryToView.setClosedDate(null);
-		enquiryService.save(enquiryToView);
-		enquiryService.sortProgressUsers(enquiryToView);
-		Long waiting = enquiryService.getNumByStatus("waiting");
-		model.addAttribute("waiting", waiting);
-		Long opened = enquiryService.getNumByStatus("in progress");
-		model.addAttribute("opened", opened);
-		Long closed = enquiryService.getNumByStatus("closed");
-		model.addAttribute("closed", closed);
-		Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
-		model.addAttribute("openedByUser", openedByUser);
-		int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
-		model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
-		Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
-		model.addAttribute("closedByUser", closedByUser);
-		model.addAttribute("enquiry", enquiryToView);
-		model.addAttribute("email", null);
-		model.addAttribute("emailFail", null);
-		return "enquiryPage";	
-	}
-	
-	
+        return "enquiryPage";
+    }
+
+    @PostMapping("/enquiry/assign")
+    public String assign(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
+        User currentUser = userService.getUserByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser);
+        Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
+        enquiryToView.addProgressUser(currentUser);
+        enquiryToView.setStatus("in progress");
+        enquiryService.save(enquiryToView);
+        enquiryService.sortProgressUsers(enquiryToView);
+        Long waiting = enquiryService.getNumByStatus("waiting");
+        model.addAttribute("waiting", waiting);
+        Long opened = enquiryService.getNumByStatus("in progress");
+        model.addAttribute("opened", opened);
+        Long closed = enquiryService.getNumByStatus("closed");
+        model.addAttribute("closed", closed);
+        Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+        model.addAttribute("openedByUser", openedByUser);
+        int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+        model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+        Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+        model.addAttribute("closedByUser", closedByUser);
+        model.addAttribute("enquiry", enquiryToView);
+        model.addAttribute("email", null);
+        model.addAttribute("emailFail", null);
+        return "enquiryPage";
+    }
+
+    @PostMapping("/enquiry/deassign")
+    public String deassign(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
+        User currentUser = userService.getUserByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser);
+        Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
+        enquiryToView.removeProgressUser(currentUser);
+        if (enquiryToView.getProgressUser().isEmpty()) {
+            enquiryToView.setStatus("waiting");
+        } else {
+            enquiryToView.setStatus("in progress");
+        }
+        enquiryService.save(enquiryToView);
+        enquiryService.sortProgressUsers(enquiryToView);
+        Long waiting = enquiryService.getNumByStatus("waiting");
+        model.addAttribute("waiting", waiting);
+        Long opened = enquiryService.getNumByStatus("in progress");
+        model.addAttribute("opened", opened);
+        Long closed = enquiryService.getNumByStatus("closed");
+        model.addAttribute("closed", closed);
+        Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+        model.addAttribute("openedByUser", openedByUser);
+        int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+        model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+        Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+        model.addAttribute("closedByUser", closedByUser);
+        model.addAttribute("enquiry", enquiryToView);
+        model.addAttribute("email", null);
+        model.addAttribute("emailFail", null);
+        return "enquiryPage";
+    }
+
+    @PostMapping("/enquiry/close")
+    public String close(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
+        User currentUser = userService.getUserByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser);
+        Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
+        enquiryToView.setClosingUser(currentUser);
+        enquiryToView.setClosedDate(ZonedDateTime.now());
+        enquiryToView.setStatus("closed");
+        enquiryService.save(enquiryToView);
+        enquiryService.sortProgressUsers(enquiryToView);
+        Long waiting = enquiryService.getNumByStatus("waiting");
+        model.addAttribute("waiting", waiting);
+        Long opened = enquiryService.getNumByStatus("in progress");
+        model.addAttribute("opened", opened);
+        Long closed = enquiryService.getNumByStatus("closed");
+        model.addAttribute("closed", closed);
+        Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+        model.addAttribute("openedByUser", openedByUser);
+        int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+        model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+        Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+        model.addAttribute("closedByUser", closedByUser);
+        model.addAttribute("enquiry", enquiryToView);
+        model.addAttribute("email", null);
+        model.addAttribute("emailFail", null);
+        return "enquiryPage";
+    }
+
+    @PostMapping("/enquiry/open")
+    public String open(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
+        User currentUser = userService.getUserByUsername(principal.getName());
+        model.addAttribute("currentUser", currentUser);
+        Enquiry enquiryToView = enquiryService.getById(enquiry.getId());
+        enquiryToView.setStatus("in progress");
+        enquiryToView.setClosedDate(null);
+        enquiryService.save(enquiryToView);
+        enquiryService.sortProgressUsers(enquiryToView);
+        Long waiting = enquiryService.getNumByStatus("waiting");
+        model.addAttribute("waiting", waiting);
+        Long opened = enquiryService.getNumByStatus("in progress");
+        model.addAttribute("opened", opened);
+        Long closed = enquiryService.getNumByStatus("closed");
+        model.addAttribute("closed", closed);
+        Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "in progress");
+        model.addAttribute("openedByUser", openedByUser);
+        int assignedToUserAndClosed = enquiryService.getNumByClosedAndUserAssigned(currentUser);
+        model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
+        Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
+        model.addAttribute("closedByUser", closedByUser);
+        model.addAttribute("enquiry", enquiryToView);
+        model.addAttribute("email", null);
+        model.addAttribute("emailFail", null);
+        return "enquiryPage";
+    }
+
+
 }
 
 /*
