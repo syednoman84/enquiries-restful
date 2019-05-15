@@ -56,7 +56,11 @@ import com.latidude99.util.GenerateEnquiryListPdfFromCode;
 import com.latidude99.util.PdfCreator;
 
 
-//@RestController
+/*
+ * Deals with creating and downloading a PDF version of an enquiry
+ * and a list of 100 recent enquiries
+ * Diplays print-friendly enquiry page
+ */
 @Controller
 public class IOController {
     private static final Logger logger = LoggerFactory.getLogger(IOController.class);

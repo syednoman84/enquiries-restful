@@ -68,18 +68,19 @@ public class EnquiryListController {
         return formBean;
     }
 
+    /*
+     * Sets default options in the search section in enquiryList.html
+     */
     @ModelAttribute("searchWrapper")
     public SearchWrapper createSearchWrapper() {
         SearchWrapper searchWrapper = new SearchWrapper();
         searchWrapper.setSearchFor("");
-        searchWrapper.setSelector("keywordWildcard");  //setting pre-selected Hibernate query type in enquryList.html
+        searchWrapper.setSelector("keywordWildcard");
         searchWrapper.setLimit(0);
         searchWrapper.setSearchIn("all");
         searchWrapper.setStatus("all");
-//		searchWrapper.setDateRange("all");
         searchWrapper.setSortBy("all");
         searchWrapper.setDirection("ascending");
-//		System.out.println(userList);
         searchWrapper.setUserList(userService.getUserListAsStringList());
         searchWrapper.setAssignedUser("any user");
         searchWrapper.setClosingUser("any user");
@@ -87,15 +88,15 @@ public class EnquiryListController {
         return searchWrapper;
     }
 
-
+    /*
+     * Main screen displaed after logging in
+     */
     @GetMapping("/enquiry/list")
     public String enquiryList(Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
-//		EnquiryListWrapper enquiryListWrapper = new EnquiryListWrapper();
         enquiryListWrapper.setEnquiryList(enquiryService.getRecent100Sorted());
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
         Long waiting = enquiryService.getNumByStatus("waiting");
         model.addAttribute("waiting", waiting);
         Long opened = enquiryService.getNumByStatus("in progress");
@@ -108,18 +109,20 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-        logger.info("logged in as:  " + currentUser.getEmail());
-        System.out.println("GET  /enquiry/list -> " + enquiryListWrapper.getEnquiryList().size());
         return "enquiryList";
     }
 
+    /*
+     * Enquiry list screen, coming from other pages (with post form)
+     */
     @PostMapping("/enquiry/list")
     public String enquiryListSelection(@ModelAttribute Enquiry enquiry, Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
 
         List<Enquiry> enquiryListToUpdate = enquiryListWrapper.getEnquiryList();
-        List<Enquiry> enquiryListUpdated = enquiryService.updateEnquiryListToView(enquiryListToUpdate, enquiry.getId(), enquiry.getStatus());
+        List<Enquiry> enquiryListUpdated = enquiryService.updateEnquiryListToView(
+                enquiryListToUpdate, enquiry.getId(), enquiry.getStatus());
         enquiryListWrapper.setEnquiryList(enquiryListUpdated);
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
         enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
@@ -135,12 +138,13 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-        logger.info("logged in as:  " + currentUser.getEmail());
-        System.out.println("POST  /enquiry/list -> " + enquiryListWrapper.getEnquiryList().size());
         return "enquiryList";
     }
 
-    //------------------------------------- implemented, needs testing for edge cases
+    /*
+     * Search by enquiry/customer properties, single or multiple combination thereof
+     * (implemented, needs more thorough testing for edge cases)
+     */
     @PostMapping("/enquiry/search/regular")
     public String enquirySearchRegular(@ModelAttribute SearchWrapper searchWrapper, Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
@@ -157,31 +161,29 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-        logger.info("logged in as:  " + currentUser.getEmail());
-        //----------------------------------------------------------------------------------
 
-        System.out.println("getSearchFor-> " + searchWrapper.getSearchFor());
-        System.out.println("getSearchIn-> " + searchWrapper.getSearchIn());
-        System.out.println("getLimit-> " + searchWrapper.getLimit());
-        System.out.println("getDateRange-> " + searchWrapper.getDateRange());
-        System.out.println("getAssignedUser-> " + searchWrapper.getAssignedUser());
-        System.out.println("getClosingUser-> " + searchWrapper.getClosingUser());
-        System.out.println("getStatus-> " + searchWrapper.getStatus());
-        System.out.println("getSortBy-> " + searchWrapper.getSortBy());
-        System.out.println("getDirection-> " + searchWrapper.getDirection());
+        logger.info("logged in as:  " + currentUser.getEmail());
+        logger.info("SearchFor-> " + searchWrapper.getSearchFor());
+        logger.info("SearchIn-> " + searchWrapper.getSearchIn());
+        logger.info("Limit-> " + searchWrapper.getLimit());
+        logger.info("DateRange-> " + searchWrapper.getDateRange());
+        logger.info("AssignedUser-> " + searchWrapper.getAssignedUser());
+        logger.info("ClosingUser-> " + searchWrapper.getClosingUser());
+        logger.info("Status-> " + searchWrapper.getStatus());
+        logger.info("SortBy-> " + searchWrapper.getSortBy());
+        logger.info("Direction-> " + searchWrapper.getDirection());
 
         List<Enquiry> enquiryListSearchResult;
         enquiryListSearchResult = enquiryService.searchRegularResultListWithProgressUserList(searchWrapper);
         enquiryListWrapper.setEnquiryList(enquiryListSearchResult);
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
 
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
-//		System.out.println("POST  /enquiry/list -> " + enquiryListWrapper.getEnquiryList().size());
-
         return "enquiryList";
     }
 
-    //------------------------------------- implemented, needs testing for edge cases
+    /*
+     * Apache Lucene / Hibernate search
+     */
     @PostMapping("/enquiry/search/fuzzy")
     public String enquirySearchFull(@ModelAttribute SearchWrapper searchWrapper, Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
@@ -198,24 +200,24 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-        logger.info("logged in as:  " + currentUser.getEmail());
-        //----------------------------------------------------------------------------------
 
-        System.out.println("getSearchFor-> " + searchWrapper.getSearchFor());
-        System.out.println("getLimit-> " + searchWrapper.getLimit());
-        System.out.println("getDateRange-> " + searchWrapper.getDateRange());
+        logger.info("logged in as:  " + currentUser.getEmail());
+        logger.info("SearchFor-> " + searchWrapper.getSearchFor());
+        logger.info("Limit-> " + searchWrapper.getLimit());
+        logger.info("DateRange-> " + searchWrapper.getDateRange());
 
         List<Enquiry> enquiryListSearchResult;
-        enquiryListSearchResult = searchService.hibernateSearch(searchWrapper.getSelector(), searchWrapper.getSearchFor(), searchWrapper.getLimit(), searchWrapper.getDateRange());
+        enquiryListSearchResult = searchService.hibernateSearch(searchWrapper.getSelector(),
+                searchWrapper.getSearchFor(), searchWrapper.getLimit(), searchWrapper.getDateRange());
         enquiryListWrapper.setEnquiryList(enquiryListSearchResult);
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
-//		System.out.println("POST  /enquiry/list -> " + enquiryListWrapper.getEnquiryList().size());
 
         return "enquiryList";
     }
 
+    /*
+     * Sorts enquiry list on the main page
+     */
     @PostMapping("/enquiry/sort")
     public String sortById(@ModelAttribute EnquiryListWrapper enquiryListWrapper, Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
@@ -232,13 +234,11 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-
-        List<Enquiry> enquiryListWithProgressUsers = enquiryService.sortProgressUsers(enquiryListWrapper.getEnquiryList());
-        List<Enquiry> enquiriesSorted = enquiryService.sortBy(enquiryListWithProgressUsers, enquiryListWrapper.getSortBy());
+        List<Enquiry> enquiryListWithProgressUsers =
+                enquiryService.sortProgressUsers(enquiryListWrapper.getEnquiryList());
+        List<Enquiry> enquiriesSorted =
+                enquiryService.sortBy(enquiryListWithProgressUsers, enquiryListWrapper.getSortBy());
         enquiryListWrapper.setEnquiryList(enquiriesSorted);
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
-        System.out.println("enquiryListWrapper.getSortBy(): " + enquiryListWrapper.getSortBy());
-
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
         return "enquiryList";
     }
@@ -247,10 +247,8 @@ public class EnquiryListController {
     public String enquiryListClear(Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
-//		EnquiryListWrapper enquiryListWrapper = new EnquiryListWrapper();
         enquiryListWrapper.setEnquiryList(new ArrayList<Enquiry>());
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
         Long waiting = enquiryService.getNumByStatus("waiting");
         model.addAttribute("waiting", waiting);
         Long opened = enquiryService.getNumByStatus("in progress");
@@ -263,7 +261,6 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-        logger.info("logged in as:  " + currentUser.getEmail());
         return "enquiryList";
     }
 
@@ -271,10 +268,8 @@ public class EnquiryListController {
     public String enquiryListLast100(Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
-//		EnquiryListWrapper enquiryListWrapper = new EnquiryListWrapper();
         enquiryListWrapper.setEnquiryList(enquiryService.getRecent100Sorted());
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
         Long waiting = enquiryService.getNumByStatus("waiting");
         model.addAttribute("waiting", waiting);
         Long opened = enquiryService.getNumByStatus("in progress");
@@ -307,17 +302,11 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-
-//		EnquiryListWrapper enquiryListWrapper = new EnquiryListWrapper();
         enquiryListWrapper.setEnquiryList(enquiryService.getLastUserDefined(0, formBean.getNumber()));
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
-
-        logger.info("logged in as:  " + currentUser.getEmail());
         return "enquiryList";
     }
 
-    //------------------------------------------------------not implemented yet
     @PostMapping("/enquiry/search/id")
     public String enquiryLoadById(@ModelAttribute FormBean formBean, Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
@@ -334,13 +323,9 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-
-//		EnquiryListWrapper enquiryListWrapper = new EnquiryListWrapper();
-        enquiryListWrapper.setEnquiryList(enquiryService.getUserDefinedIdsProgressUsersSorted(formBean.getNumbersAsString()));
+        enquiryListWrapper.setEnquiryList(
+                enquiryService.getUserDefinedIdsProgressUsersSorted(formBean.getNumbersAsString()));
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
-
-        logger.info("logged in as:  " + currentUser.getEmail());
         return "enquiryList";
     }
 
@@ -348,10 +333,8 @@ public class EnquiryListController {
     public String enquiryListWaiting(Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
-//		EnquiryListWrapper enquiryListWrapper = new EnquiryListWrapper();
         enquiryListWrapper.setEnquiryList(enquiryService.getByStatus("waiting"));
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
         Long waiting = enquiryService.getNumByStatus("waiting");
         model.addAttribute("waiting", waiting);
         Long opened = enquiryService.getNumByStatus("in progress");
@@ -364,7 +347,6 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-        logger.info("logged in as:  " + currentUser.getEmail());
         return "enquiryList";
     }
 
@@ -372,10 +354,8 @@ public class EnquiryListController {
     public String enquiryListProgress(Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
-//		EnquiryListWrapper enquiryListWrapper = new EnquiryListWrapper();
         enquiryListWrapper.setEnquiryList(enquiryService.getByStatus("in progress"));
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
         Long waiting = enquiryService.getNumByStatus("waiting");
         model.addAttribute("waiting", waiting);
         Long opened = enquiryService.getNumByStatus("in progress");
@@ -388,7 +368,6 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-        logger.info("logged in as:  " + currentUser.getEmail());
         return "enquiryList";
     }
 
@@ -396,10 +375,8 @@ public class EnquiryListController {
     public String enquiryListClosed(Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
-//		EnquiryListWrapper enquiryListWrapper = new EnquiryListWrapper();
         enquiryListWrapper.setEnquiryList(enquiryService.getByStatus("closed"));
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
         Long waiting = enquiryService.getNumByStatus("waiting");
         model.addAttribute("waiting", waiting);
         Long opened = enquiryService.getNumByStatus("in progress");
@@ -412,18 +389,18 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-        logger.info("logged in as:  " + currentUser.getEmail());
         return "enquiryList";
     }
 
+    /*
+     * Displays enquiries in progress assigned to the logged in user
+     */
     @GetMapping("/enquiry/list/progress/user/assigned")
     public String enquiryListOpenedAndUserAssigned(Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
-//		EnquiryListWrapper enquiryListWrapper = new EnquiryListWrapper();
         enquiryListWrapper.setEnquiryList(enquiryService.getByStatusAndUser("in progress", currentUser));
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
         Long waiting = enquiryService.getNumByStatus("waiting");
         model.addAttribute("waiting", waiting);
         Long opened = enquiryService.getNumByStatus("in progress");
@@ -436,18 +413,18 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-        logger.info("logged in as:  " + currentUser.getEmail());
         return "enquiryList";
     }
 
+    /*
+     * Displays enquiries assigned the logged in user and closed (by another user)
+     */
     @GetMapping("/enquiry/list/closed/user/assigned")
     public String enquiryListClosedAndUserAssigned(Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
-//		EnquiryListWrapper enquiryListWrapper = new EnquiryListWrapper();
         enquiryListWrapper.setEnquiryList(enquiryService.getByClosedAndUserAssigned(currentUser));
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
         Long waiting = enquiryService.getNumByStatus("waiting");
         model.addAttribute("waiting", waiting);
         Long opened = enquiryService.getNumByStatus("in progress");
@@ -460,19 +437,18 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-        logger.info("logged in as:  " + currentUser.getEmail());
         return "enquiryList";
     }
 
-
+    /*
+     * Displays enquiries assigned the logged in user and closed (by that user)
+     */
     @GetMapping("/enquiry/list/closed/user/closed")
     public String enquiryListClosedByUser(Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
-//		EnquiryListWrapper enquiryListWrapper = new EnquiryListWrapper();
         enquiryListWrapper.setEnquiryList(enquiryService.getByStatusAndUser("closed", currentUser));
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-//		enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
         Long waiting = enquiryService.getNumByStatus("waiting");
         model.addAttribute("waiting", waiting);
         Long opened = enquiryService.getNumByStatus("in progress");
@@ -485,7 +461,6 @@ public class EnquiryListController {
         model.addAttribute("assignedToUserAndClosed", assignedToUserAndClosed);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "closed");
         model.addAttribute("closedByUser", closedByUser);
-        logger.info("logged in as:  " + currentUser.getEmail());
         return "enquiryList";
     }
 
@@ -493,23 +468,6 @@ public class EnquiryListController {
 }
 
 	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -24,6 +24,9 @@ package com.latidude99.web.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+/*
+ * Tests displaying error page
+ */
 @Controller
 public class TestController {
 

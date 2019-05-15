@@ -32,7 +32,8 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 public class FileUploadExceptionAdvice {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public String handleMaxSizeException(MaxUploadSizeExceededException exc, HttpServletRequest request, HttpServletResponse response) {
+    public String handleMaxSizeException(MaxUploadSizeExceededException exc,
+                                         HttpServletRequest request, HttpServletResponse response) {
         return "redirect:/enquiry/form/uploadfail";
     }
 

@@ -17,6 +17,9 @@
  *  or write to: latidude99@gmail.com
  */
 
+/*
+ * Checks for matching input when setting up a password
+ */
 var password = document.getElementById("password")
     , confirm_password = document.getElementById("confirm_password");
 

@@ -41,7 +41,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
+/*
+ * Deals with attachments stored in the database and displayed in detailed enquiry view
+ */
 @Controller
 public class AttachmentController {
     private static final Logger logger = LoggerFactory.getLogger(AttachmentController.class);

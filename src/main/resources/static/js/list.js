@@ -17,7 +17,9 @@
  *  or write to: latidude99@gmail.com
  */
 
-
+/*
+ * a script for search options on enquiry listing page
+ */
 $(function () {
 
     $('input[name="dateRange"]').daterangepicker({

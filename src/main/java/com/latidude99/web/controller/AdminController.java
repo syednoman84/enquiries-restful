@@ -97,18 +97,20 @@ public class AdminController {
         return "enquiryAdmin";
     }
 
+    /*
+     * Allows admin users to change other users/admins privileges
+     */
     @PostMapping("/user/privileges")
     public String privileges(@ModelAttribute User user, Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         User userToUpdate = userService.findById(user.getId());
-
         model.addAttribute("privileges", null);
 
         UserRole roleUser = userRoleService.getUserRole(Role.DEFAULT.getText());
         UserRole roleAdmin = userRoleService.getUserRole(Role.ADMIN.getText());
         UserRole roleAppAdmin = userRoleService.getUserRole(Role.APPADMIN.getText());
-
-        if (currentUser.getRoles().contains(roleAppAdmin) && !userToUpdate.getRoles().contains(roleAppAdmin)) {
+        if (currentUser.getRoles().contains(roleAppAdmin) &&
+                !userToUpdate.getRoles().contains(roleAppAdmin)) {
             if (userToUpdate.getRoles().contains(roleUser)) {
                 Set<UserRole> roles = new HashSet<>();
                 roles.add(roleAdmin);
@@ -118,7 +120,8 @@ public class AdminController {
                 roles.add(roleUser);
                 userToUpdate.setRoles(roles);
             }
-        } else if (currentUser.getRoles().contains(roleAdmin) && !userToUpdate.getRoles().contains(roleAppAdmin)) {
+        } else if (currentUser.getRoles().contains(roleAdmin) &&
+                !userToUpdate.getRoles().contains(roleAppAdmin)) {
             if (userToUpdate.getRoles().contains(roleUser)) {
                 Set<UserRole> roles = new HashSet<>();
                 roles.add(roleAdmin);
@@ -128,10 +131,11 @@ public class AdminController {
                 roles.add(roleUser);
                 userToUpdate.setRoles(roles);
             }
-        } else if (currentUser.getRoles().contains(roleAdmin) && userToUpdate.getRoles().contains(roleAppAdmin)) {
-            model.addAttribute("privileges", "Insufficient privileges for the operation");
+        } else if (currentUser.getRoles().contains(roleAdmin) &&
+                userToUpdate.getRoles().contains(roleAppAdmin)) {
+            model.addAttribute("privileges",
+                    "Insufficient privileges for the operation");
         }
-
         userService.save(userToUpdate);
         model.addAttribute("currentUser", currentUser);
         Long waiting = enquiryService.getNumByStatus("waiting");
@@ -149,6 +153,9 @@ public class AdminController {
         return "enquiryAdmin";
     }
 
+    /*
+     * Allows admins to block/unblock users
+     */
     @PostMapping("/user/block")
     public String block(@ModelAttribute User user, Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
@@ -157,13 +164,19 @@ public class AdminController {
         model.addAttribute("privileges", null);
         UserRole roleAdmin = userRoleService.getUserRole(Role.ADMIN.getText());
         UserRole roleAppAdmin = userRoleService.getUserRole(Role.APPADMIN.getText());
-        if (currentUser.getRoles().contains(roleAdmin) || !currentUser.getRoles().contains(roleAppAdmin)) {
+        if (currentUser.getRoles().contains(roleAdmin) ||
+                !currentUser.getRoles().contains(roleAppAdmin)) {
             if (userToUpdate.getRoles().contains(roleAppAdmin))
-                model.addAttribute("privileges", "Insufficient privileges for the operation");
-            if ((!userToUpdate.getRoles().contains(roleAdmin) && !userToUpdate.getRoles().contains(roleAppAdmin)) && userToUpdate.isBlocked()) {
+                model.addAttribute("privileges",
+                        "Insufficient privileges for the operation");
+            if (!userToUpdate.getRoles().contains(roleAdmin) &&
+                    !userToUpdate.getRoles().contains(roleAppAdmin) &&
+                    userToUpdate.isBlocked()) {
                 userToUpdate.setBlocked(false);
                 userService.save(userToUpdate);
-            } else if ((!userToUpdate.getRoles().contains(roleAdmin) && !userToUpdate.getRoles().contains(roleAppAdmin)) && !userToUpdate.isBlocked()) {
+            } else if (!userToUpdate.getRoles().contains(roleAdmin) &&
+                    !userToUpdate.getRoles().contains(roleAppAdmin) &&
+                    !userToUpdate.isBlocked()) {
                 userToUpdate.setBlocked(true);
                 userService.save(userToUpdate);
             }
@@ -190,36 +203,45 @@ public class AdminController {
         model.addAttribute("closedByUser", closedByUser);
         List<User> users = userService.getAllSinCurrent(currentUser);
         model.addAttribute("users", users);
-
         return "enquiryAdmin";
     }
 
+    /*
+     * Allows admins to activate/deactivate users
+     */
     @PostMapping("/user/enable")
     public String enable(@ModelAttribute User user, Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         User userToUpdate = userService.findById(user.getId());
 
         model.addAttribute("privileges", null);
-
         UserRole roleAdmin = userRoleService.getUserRole(Role.ADMIN.getText());
         UserRole roleAppAdmin = userRoleService.getUserRole(Role.APPADMIN.getText());
 
-        if (currentUser.getRoles().contains(roleAdmin) || !currentUser.getRoles().contains(roleAppAdmin)) {
+        if (currentUser.getRoles().contains(roleAdmin) ||
+                !currentUser.getRoles().contains(roleAppAdmin)) {
             if (userToUpdate.getRoles().contains(roleAppAdmin))
-                model.addAttribute("privileges", "Insufficient privileges for the operation");
-            if (!userToUpdate.getRoles().contains(roleAdmin) && !userToUpdate.getRoles().contains(roleAppAdmin) && userToUpdate.isEnabled()) {
+                model.addAttribute("privileges",
+                        "Insufficient privileges for the operation");
+            if (!userToUpdate.getRoles().contains(roleAdmin) &&
+                    !userToUpdate.getRoles().contains(roleAppAdmin) &&
+                    userToUpdate.isEnabled()) {
                 userToUpdate.setEnabled(false);
                 userService.save(userToUpdate);
-            } else if (!userToUpdate.getRoles().contains(roleAdmin) && !userToUpdate.getRoles().contains(roleAppAdmin) && !userToUpdate.isEnabled()) {
+            } else if (!userToUpdate.getRoles().contains(roleAdmin) &&
+                    !userToUpdate.getRoles().contains(roleAppAdmin) &&
+                    !userToUpdate.isEnabled()) {
                 userToUpdate.setEnabled(true);
                 userService.save(userToUpdate);
             }
         }
         if (currentUser.getRoles().contains(roleAppAdmin)) {
-            if (!userToUpdate.getRoles().contains(roleAppAdmin) && userToUpdate.isEnabled()) {
+            if (!userToUpdate.getRoles().contains(roleAppAdmin) &&
+                    userToUpdate.isEnabled()) {
                 userToUpdate.setEnabled(false);
                 userService.save(userToUpdate);
-            } else if (!userToUpdate.getRoles().contains(roleAppAdmin) && !userToUpdate.isEnabled()) {
+            } else if (!userToUpdate.getRoles().contains(roleAppAdmin) &&
+                    !userToUpdate.isEnabled()) {
                 userToUpdate.setEnabled(true);
                 userService.save(userToUpdate);
             }
@@ -241,8 +263,12 @@ public class AdminController {
         return "enquiryAdmin";
     }
 
+    /*
+     * Allows admins to reset users' passwords and send a password reset link
+     */
     @PostMapping("/user/reset")
-    public String resetEmail(@ModelAttribute User user, Model model, HttpServletRequest request, Principal principal) {
+    public String resetEmail(@ModelAttribute User user, Model model,
+                             HttpServletRequest request, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         User userToReset = userService.findById(user.getId());
         model.addAttribute("currentUser", currentUser);
@@ -252,29 +278,34 @@ public class AdminController {
         model.addAttribute("opened", opened);
         Long closed = enquiryService.getNumByStatus("closed");
         model.addAttribute("closed", closed);
-        Long openedByUser = enquiryService.getNumByProgressUserAndStatus(currentUser, "opened");
+        Long openedByUser =
+                enquiryService.getNumByProgressUserAndStatus(currentUser, "opened");
         model.addAttribute("openedByUser", openedByUser);
-        Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "opened");
+        Long closedByUser =
+                enquiryService.getNumByClosingUserAndStatus(currentUser, "opened");
         model.addAttribute("closedByUser", closedByUser);
         List<User> users = userService.getAllSinCurrent(currentUser);
         model.addAttribute("users", users);
-
         model.addAttribute("privileges", null);
 
         UserRole roleAdmin = userRoleService.getUserRole(Role.ADMIN.getText());
-        UserRole roleAppAdmin = userRoleService.getUserRole(Role.APPADMIN.getText()); //implement ADMIN check + message
+        UserRole roleAppAdmin = userRoleService.getUserRole(Role.APPADMIN.getText());
 
         if (request.isUserInRole(Role.ADMIN.getText())) {
-            if ((!userToReset.getRoles().contains(roleAdmin) && !userToReset.getRoles().contains(roleAppAdmin)) && userToReset.getEmail() != null) {
+            if (!userToReset.getRoles().contains(roleAdmin) &&
+                    !userToReset.getRoles().contains(roleAppAdmin) &&
+                    userToReset.getEmail() != null) {
                 try {
                     String resetToken = UUID.randomUUID().toString();
-                    String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort(); //development
-//					String appUrl = APP_URL; //production
+                    String appUrl = request.getScheme() + "://" +
+                            request.getServerName() + ":" + request.getServerPort(); //development
+//					String appUrl = APP_URL;                                        //production
                     SimpleMailMessage resetEmail = new SimpleMailMessage();
                     resetEmail.setFrom("no-replay@domain.com");
                     resetEmail.setTo(userToReset.getEmail());
                     resetEmail.setSubject("Enquiry System: Password Reset");
-                    resetEmail.setText("To reset your password, please click the link below:\n" + appUrl + "/user/reset?resetToken=" + resetToken);
+                    resetEmail.setText("To reset your password, please click the link below:\n" +
+                            appUrl + "/user/reset?resetToken=" + resetToken);
                     resetEmail.setFrom("noreply@domain.com");
                     emailService.sendEmail(resetEmail);
                     userToReset.setResetToken(resetToken);
@@ -298,13 +329,15 @@ public class AdminController {
             if (!userToReset.getRoles().contains(roleAppAdmin) && userToReset.getEmail() != null) {
                 try {
                     String resetToken = UUID.randomUUID().toString();
-                    String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort(); //development
-//					String appUrl = APP_URL; //production
+                    String appUrl = request.getScheme() + "://" +
+                            request.getServerName() + ":" + request.getServerPort(); //development
+//					String appUrl = APP_URL;                                         //production
                     SimpleMailMessage resetEmail = new SimpleMailMessage();
                     resetEmail.setFrom("no-replay@domain.com");
                     resetEmail.setTo(userToReset.getEmail());
                     resetEmail.setSubject("Enquiry System: Password Reset");
-                    resetEmail.setText("To reset your password, please click the link below:\n" + appUrl + "/user/reset?resetToken=" + resetToken);
+                    resetEmail.setText("To reset your password, please click the link below:\n" +
+                            appUrl + "/user/reset?resetToken=" + resetToken);
                     resetEmail.setFrom("noreply@domain.com");
                     emailService.sendEmail(resetEmail);
                     userToReset.setResetToken(resetToken);
@@ -328,8 +361,12 @@ public class AdminController {
         return "enquiryAdmin";
     }
 
+    /*
+     * Allows admins to re-send an activation link
+     */
     @PostMapping("/user/activate")
-    public String activationEmail(@ModelAttribute User user, Model model, HttpServletRequest request, Principal principal) {
+    public String activationEmail(@ModelAttribute User user, Model model,
+                                  HttpServletRequest request, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         User userToActivate = userService.findById(user.getId());
         model.addAttribute("currentUser", currentUser);
@@ -347,20 +384,23 @@ public class AdminController {
         model.addAttribute("users", users);
 
         model.addAttribute("privileges", null);
-
         UserRole roleAdmin = userRoleService.getUserRole(Role.ADMIN.getText());
-        UserRole roleAppAdmin = userRoleService.getUserRole(Role.APPADMIN.getText()); //implement ADMIN check + message
+        UserRole roleAppAdmin = userRoleService.getUserRole(Role.APPADMIN.getText());
         if (request.isUserInRole(Role.ADMIN.getText())) {
-            if ((!userToActivate.getRoles().contains(roleAdmin) && !userToActivate.getRoles().contains(roleAppAdmin)) && userToActivate.getEmail() != null) {
+            if (!userToActivate.getRoles().contains(roleAdmin) &&
+                    !userToActivate.getRoles().contains(roleAppAdmin) &&
+                    userToActivate.getEmail() != null) {
                 try {
                     String activationToken = UUID.randomUUID().toString();
-                    String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort(); //development
-//					String appUrl = APP_URL; //production
+                    String appUrl = request.getScheme() + "://" +
+                            request.getServerName() + ":" + request.getServerPort(); //development
+//					String appUrl = APP_URL;                                         //production
                     SimpleMailMessage activationEmail = new SimpleMailMessage();
                     activationEmail.setFrom("no-replay@domain.com");
                     activationEmail.setTo(userToActivate.getEmail());
                     activationEmail.setSubject("Enquiry System: Account Activation");
-                    activationEmail.setText("To activate your account, please click the link below:\n" + appUrl + "/user/activate?activationToken=" + activationToken);
+                    activationEmail.setText("To activate your account, please click the link below:\n" +
+                            appUrl + "/user/activate?activationToken=" + activationToken);
                     activationEmail.setFrom("noreply@domain.com");
                     emailService.sendEmail(activationEmail);
                     userToActivate.setActivationToken(activationToken);
@@ -383,13 +423,15 @@ public class AdminController {
         } else if (request.isUserInRole(Role.APPADMIN.getText())) {
             try {
                 String activationToken = UUID.randomUUID().toString();
-                String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort(); //development
-//				String appUrl = APP_URL; //production
+                String appUrl = request.getScheme() + "://" +
+                        request.getServerName() + ":" + request.getServerPort(); //development
+//				String appUrl = APP_URL;                                        //production
                 SimpleMailMessage activationEmail = new SimpleMailMessage();
                 activationEmail.setFrom("no-replay@domain.com");
                 activationEmail.setTo(userToActivate.getEmail());
                 activationEmail.setSubject("Enquiry System: Account Activation");
-                activationEmail.setText("To activate your account, please click the link below:\n" + appUrl + "/user/activate?activationToken=" + activationToken);
+                activationEmail.setText("To activate your account, please click the link below:\n" +
+                        appUrl + "/user/activate?activationToken=" + activationToken);
                 activationEmail.setFrom("noreply@domain.com");
                 emailService.sendEmail(activationEmail);
                 userToActivate.setActivationToken(activationToken);
@@ -412,6 +454,9 @@ public class AdminController {
         return "enquiryAdmin";
     }
 
+    /*
+     * Displays form for adding new users/admins
+     */
     @GetMapping("/user/add")
     public String addUser(Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
@@ -437,8 +482,12 @@ public class AdminController {
         return "addUser";
     }
 
+    /*
+     * Processes adding nwe users with USER priviledges
+     */
     @PostMapping("/user/add/defaultRole")
-    public String addUserDefault(@ModelAttribute @Valid User userNew, BindingResult bindResult, HttpServletRequest request, Model model, Principal principal) {
+    public String addUserDefault(@ModelAttribute @Valid User userNew, BindingResult bindResult,
+                                 HttpServletRequest request, Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
         Long waiting = enquiryService.getNumByStatus("waiting");
@@ -465,13 +514,17 @@ public class AdminController {
             try {
                 String password = generateRandomPassword(10);
                 String activationToken = UUID.randomUUID().toString();
-                String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort(); //development
-//				String appUrl = APP_URL; // production
+                String appUrl = request.getScheme() + "://" +
+                        request.getServerName() + ":" + request.getServerPort(); //development
+//				String appUrl = APP_URL;                                         // production
                 SimpleMailMessage registrationEmail = new SimpleMailMessage();
                 registrationEmail.setFrom("no-replay@domain.com");
                 registrationEmail.setTo(userNew.getEmail());
                 registrationEmail.setSubject("Registration Confirmation");
-                registrationEmail.setText("To confirm your e-mail address, please click the link below:\n" + appUrl + "/user/activate?activationToken=" + activationToken + "\n\n Your temporary password is: \n" + password + "\n Please change it immediately after you log in - it is NOT encrypted until then");
+                registrationEmail.setText("To confirm your e-mail address, please click the link below:\n" +
+                        appUrl + "/user/activate?activationToken=" + activationToken +
+                        "\n\n Your temporary password is: \n" + password +
+                        "\n Please change it immediately after you log in - it is NOT encrypted until then");
                 registrationEmail.setFrom("noreply@domain.com");
                 emailService.sendEmail(registrationEmail);
                 userNew.setName(userNew.getName().trim());
@@ -495,8 +548,12 @@ public class AdminController {
         }
     }
 
+    /*
+     * Processes adding nwe users with ADMIN priviledges
+     */
     @PostMapping("/user/add/adminRole")
-    public String addUserAdmin(@ModelAttribute @Valid User userNew, BindingResult bindResult, HttpServletRequest request, Model model, Principal principal) {
+    public String addUserAdmin(@ModelAttribute @Valid User userNew, BindingResult bindResult,
+                               HttpServletRequest request, Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
         Long waiting = enquiryService.getNumByStatus("waiting");
@@ -523,13 +580,17 @@ public class AdminController {
             try {
                 String password = generateRandomPassword(10);
                 String activationToken = UUID.randomUUID().toString();
-                String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort(); //development
-//				String appUrl = APP_URL; // production
+                String appUrl = request.getScheme() + "://" +
+                        request.getServerName() + ":" + request.getServerPort(); //development
+//				String appUrl = APP_URL;                                        // production
                 SimpleMailMessage registrationEmail = new SimpleMailMessage();
                 registrationEmail.setFrom("no-replay@domain.com");
                 registrationEmail.setTo(userNew.getEmail());
                 registrationEmail.setSubject("Registration Confirmation");
-                registrationEmail.setText("To confirm your e-mail address, please click the link below:\n" + appUrl + "/user/activate?activationToken=" + activationToken + "\n\n Your temporary password is: \n" + password + "\n Please change it immediately after you log in - it is NOT encrypted until then");
+                registrationEmail.setText("To confirm your e-mail address, please click the link below:\n" +
+                        appUrl + "/user/activate?activationToken=" + activationToken +
+                        "\n\n Your temporary password is: \n" + password +
+                        "\n Please change it immediately after you log in - it is NOT encrypted until then");
                 registrationEmail.setFrom("noreply@domain.com");
                 emailService.sendEmail(registrationEmail);
                 userNew.setName(userNew.getName().trim());
