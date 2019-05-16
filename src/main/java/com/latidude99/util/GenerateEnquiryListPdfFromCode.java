@@ -42,8 +42,9 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.latidude99.model.Enquiry;
 
-//import com.itextpdf.text.BaseColor;
-
+/*
+ * Creates a PDF with a list of enquiries
+ */
 
 public class GenerateEnquiryListPdfFromCode {
 

@@ -31,7 +31,6 @@ import com.latidude99.repository.AttachmentRepository;
 
 @Service
 public class AttachmentService {
-    private static final Logger logger = LoggerFactory.getLogger(AttachmentService.class);
 
     @Autowired
     AttachmentRepository attachmentRepository;

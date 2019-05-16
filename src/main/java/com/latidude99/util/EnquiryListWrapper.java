@@ -28,9 +28,12 @@ import org.springframework.stereotype.Component;
 
 import com.latidude99.model.Enquiry;
 
+/*
+ * Main enquiry list view, helper object
+ */
+
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-//@Scope(value="session", proxyMode=ScopedProxyMode.TARGET_CLASS)
 public class EnquiryListWrapper {
 	
 	List<Enquiry> enquiryList;

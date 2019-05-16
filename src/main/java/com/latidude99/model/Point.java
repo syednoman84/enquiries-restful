@@ -30,6 +30,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+/*
+ * Points of interests, customer enquiry form
+ * (not implemented, went with polygons for now)
+ */
+
 @Entity
 public class Point implements Serializable {
     private static final long serialVersionUID = 2410247765300103983L;

@@ -45,6 +45,10 @@ import static com.itextpdf.text.pdf.BaseFont.EMBEDDED;
 import static com.itextpdf.text.pdf.BaseFont.IDENTITY_H;
 import static org.thymeleaf.templatemode.TemplateMode.HTML;
 
+/*
+ * Creates an individual enquiry PDF
+ */
+
 @Component
 public class PdfCreator {
     private static final String UTF_8 = "UTF-8";
@@ -68,26 +72,12 @@ public class PdfCreator {
         String xHtml = convertToXhtml(processedHtml);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//		  String fileName = UUID.randomUUID().toString();
-//	        try {
-//	            final File outputFile = File.createTempFile(fileName, ".pdf");
-//	            os = new FileOutputStream(outputFile);
 
         ITextRenderer renderer = new ITextRenderer();
         renderer.setDocumentFromString(xHtml);
         renderer.layout();
         renderer.createPDF(bos, false);
         renderer.finishPDF();
-        System.out.println("PDF created successfully");
-        System.out.println(File.createTempFile("temp-file", "tmp").getParent());
-//	        }
-//	        finally {
-//	            if (bos != null) {
-//	                try {
-//	                    bos.close();
-//	                } catch (IOException e) { /*ignore*/ }
-//	            }
-//	        }
 
         return new ByteArrayInputStream(bos.toByteArray());
 

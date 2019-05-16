@@ -19,6 +19,10 @@
 
 package com.latidude99.util;
 
+/*
+ * Individual enquiry view, user comments form helper object
+ */
+
 public class FormBean {
 	
 	private String selector;

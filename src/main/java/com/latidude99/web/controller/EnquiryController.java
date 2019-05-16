@@ -71,8 +71,6 @@ public class EnquiryController {
     @Autowired
     EmailService emailService;
 
-    @Autowired
-    EnquiryListWrapper enquiryListWrapper;
 
     @ModelAttribute("formBean")
     public FormBean createFormBean() {
@@ -100,7 +98,7 @@ public class EnquiryController {
     }
 
     /*
-     * Processes customer enquiry and
+     * Processes customer enquiry and saves it to the database
      */
     @PostMapping("/enquiry/form")
     public String enquiryAdd(@ModelAttribute @Valid Enquiry enquiry, BindingResult result,
@@ -167,7 +165,7 @@ public class EnquiryController {
     }
 
     /*
-     * Displays detailed enquiry page from database
+     * Displays detailed enquiry view from database
      */
     @PostMapping("/enquiry/page")
     public String enquiryPage(@ModelAttribute Enquiry enquiry, Model model, Principal principal,

@@ -126,19 +126,7 @@ public class IOController {
 	
 	
 	
-	
-	
-/*	
-	@RequestMapping(value="/enquiry/pdf", method=RequestMethod.POST, produces = MediaType.APPLICATION_PDF_VALUE)
-	public ResponseEntity<InputStreamResource> pdf(@ModelAttribute Enquiry enquiry, Model model, Principal principal) throws IOException{
-		User currentUser = userService.getUserByUsername(principal.getName());
-		model.addAttribute("currentUser", currentUser);
-		Enquiry enquiryToSave = enquiryService.getById(enquiry.getId());
-		
-		
-		return ResponseEntity;
-	}
-*/
+
 }
 		
 	

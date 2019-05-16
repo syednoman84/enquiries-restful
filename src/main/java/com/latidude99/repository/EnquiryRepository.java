@@ -57,31 +57,46 @@ public interface EnquiryRepository extends JpaRepository<Enquiry, Long> {
 
     Page<Enquiry> findAll(Pageable pageable);
 
-    //------------------------------search, regular---------------------------
 
-    List<Enquiry> findAllByNameIgnoreCaseAndCreatedDateBetween(String name, ZonedDateTime startDate, ZonedDateTime endDate);
+    /*
+     * Custom search section (enquiry list view) by enquiry properties
+     */
 
-    List<Enquiry> findAllByEmailIgnoreCaseAndCreatedDateBetween(String email, ZonedDateTime startDate, ZonedDateTime endDate);
+    List<Enquiry> findAllByNameIgnoreCaseAndCreatedDateBetween(
+            String name, ZonedDateTime startDate, ZonedDateTime endDate);
 
-    List<Enquiry> findAllByPhoneIgnoreCaseAndCreatedDateBetween(String phone, ZonedDateTime startDate, ZonedDateTime endDate);
+    List<Enquiry> findAllByEmailIgnoreCaseAndCreatedDateBetween(
+            String email, ZonedDateTime startDate, ZonedDateTime endDate);
 
-    List<Enquiry> findAllByMessageIgnoreCaseAndCreatedDateBetween(String message, ZonedDateTime startDate, ZonedDateTime endDate);
+    List<Enquiry> findAllByPhoneIgnoreCaseAndCreatedDateBetween(
+            String phone, ZonedDateTime startDate, ZonedDateTime endDate);
 
-    List<Enquiry> findAllByIsbnAndCreatedDateBetween(String isbn, ZonedDateTime endDate, ZonedDateTime startDate);
+    List<Enquiry> findAllByMessageIgnoreCaseAndCreatedDateBetween(
+            String message, ZonedDateTime startDate, ZonedDateTime endDate);
 
-    List<Enquiry> findAllByCreatedDateBetweenAndNameIgnoreCaseContaining(ZonedDateTime startDate, ZonedDateTime endDate, String name);
+    List<Enquiry> findAllByIsbnAndCreatedDateBetween(
+            String isbn, ZonedDateTime endDate, ZonedDateTime startDate);
 
-    List<Enquiry> findAllByCreatedDateBetweenAndEmailIgnoreCaseContaining(ZonedDateTime startDate, ZonedDateTime endDate, String email);
+    List<Enquiry> findAllByCreatedDateBetweenAndNameIgnoreCaseContaining(
+            ZonedDateTime startDate, ZonedDateTime endDate, String name);
 
-    List<Enquiry> findAllByCreatedDateBetweenAndPhoneIgnoreCaseContaining(ZonedDateTime startDate, ZonedDateTime endDate, String phone);
+    List<Enquiry> findAllByCreatedDateBetweenAndEmailIgnoreCaseContaining(
+            ZonedDateTime startDate, ZonedDateTime endDate, String email);
 
-    List<Enquiry> findAllByCreatedDateBetweenAndMessageIgnoreCaseContaining(ZonedDateTime startDate, ZonedDateTime endDate, String message);
+    List<Enquiry> findAllByCreatedDateBetweenAndPhoneIgnoreCaseContaining(
+            ZonedDateTime startDate, ZonedDateTime endDate, String phone);
 
-    List<Enquiry> findAllByCreatedDateBetweenAndIsbnContaining(ZonedDateTime startDate, ZonedDateTime endDate, String isbn);
+    List<Enquiry> findAllByCreatedDateBetweenAndMessageIgnoreCaseContaining(
+            ZonedDateTime startDate, ZonedDateTime endDate, String message);
 
-    List<Enquiry> findAllByClosingUserAndCreatedDateBetween(User closingUser, ZonedDateTime startDate, ZonedDateTime endDate);
+    List<Enquiry> findAllByCreatedDateBetweenAndIsbnContaining(
+            ZonedDateTime startDate, ZonedDateTime endDate, String isbn);
 
-    List<Enquiry> findAllByCreatedDateBetween(ZonedDateTime startDate, ZonedDateTime endDate);
+    List<Enquiry> findAllByClosingUserAndCreatedDateBetween(
+            User closingUser, ZonedDateTime startDate, ZonedDateTime endDate);
+
+    List<Enquiry> findAllByCreatedDateBetween(
+            ZonedDateTime startDate, ZonedDateTime endDate);
 }
 
 

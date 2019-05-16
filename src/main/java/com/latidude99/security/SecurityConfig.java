@@ -71,9 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				.anyRequest().authenticated()
 			.and()
 			.formLogin()
-				.loginPage("/enquiryForm")
-				.loginProcessingUrl("/enquiry/login")
-				.permitAll()
+				.loginPage("/enquiryForm").loginProcessingUrl("/enquiry/login")	.permitAll()
 				.defaultSuccessUrl("/enquiry/list", true)
 				.failureUrl("/?error=true")
 			.and()
@@ -85,9 +83,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				.tokenValiditySeconds(7*24*60*60)
 			.and()
 			.logout()
-			.logoutUrl("/logout")
-				.logoutSuccessUrl("/")
-				.permitAll()
+			.logoutUrl("/logout").logoutSuccessUrl("/").permitAll()
 			;
 	}
 

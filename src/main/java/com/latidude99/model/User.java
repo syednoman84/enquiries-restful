@@ -64,6 +64,7 @@ public class User implements Serializable {
     @Size(min = 6, message = "{com.latidude99.model.User.password.Size}")
     private String password;
 
+    // used only when resetting passwords, no need to store that
     @Transient
     @Size(min = 6, message = "{com.latidude99.model.User.password.Size}")
     private String passwordNew;
@@ -83,33 +84,20 @@ public class User implements Serializable {
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private Set<UserRole> roles = new HashSet<>();
 
+    // enquiries that user has been dealing with
     @ManyToMany(mappedBy = "progressUser", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<Enquiry> enquiriesProgress = new ArrayList<>();
 
+    // enquiries that user has closed
     @OneToMany(mappedBy = "closingUser", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     private List<Enquiry> enquiriesClosed = new ArrayList<>();
 
 
+    // when user added
     @PrePersist
     protected void onCreate() {
         registered = ZonedDateTime.now();
     }
-
-
-    //to save in DB
-    public void addEnquiryProgress(Enquiry enquiry) {
-//        enquiry.getProgressUser().put(Date.from(Instant.now()), this);
-        getEnquiriesProgress().add(enquiry);
-    }
-
-/*	
-	public void addAllEnquiriesProgress(List<Enquiry> enquiries) {
-		enquiries.forEach(enquiry -> enquiry.setUser(this));
-        getEnquiriesProgress().addAll(enquiries);
-    }
-*/
-
-    /* setters, getters and toString */
 
 
     public long getId() {
@@ -295,7 +283,12 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return "User [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + ", enabled=" + enabled + ", activationToken=" + activationToken + ", registered=" + registered + ", roles=" + roles + ", enquiriesProgress=" + enquiriesProgress.size() + ", enquiriesClosed=" + enquiriesClosed.size() + "]";
+        return "User [id=" + id + ", name=" + name + ", email=" + email +
+                ", password=" + password + ", enabled=" + enabled +
+                ", activationToken=" + activationToken +
+                ", registered=" + registered + ", roles=" + roles +
+                ", enquiriesProgress=" + enquiriesProgress.size() +
+                ", enquiriesClosed=" + enquiriesClosed.size() + "]";
     }
 
 

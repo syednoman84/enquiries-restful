@@ -23,6 +23,11 @@ package com.latidude99.util;
 
 import java.util.List;
 
+/*
+ * Transfers search parameters in the search section  form
+ * on the main enquiry list page
+ */
+
 public class SearchWrapper {
 
 

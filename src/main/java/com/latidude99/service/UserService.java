@@ -40,6 +40,10 @@ import com.latidude99.model.UserRole;
 import com.latidude99.repository.UserRepository;
 import com.latidude99.repository.UserRoleRepository;
 
+/*
+ * Customer Service registered users (staff)
+ */
+
 @Service
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -108,7 +112,8 @@ public class UserService {
                 user.setPassword(passwordEncoder.encode(password));
                 user.setEnabled(true);
                 userRepository.save(user);
-                logger.debug(user.getEmail() + ",roles: " + user.getRoles().toString() + " - user pasword encrypted");
+                logger.debug(user.getEmail() + ",roles: " +
+                        user.getRoles().toString() + " - user pasword encrypted");
             }
         }
     }
@@ -135,8 +140,13 @@ public class UserService {
         return false;
     }
 
+    /*
+     * To display user's list in search options as drop-down list
+     */
     public List<String> getUserListAsStringList() {
-        List<String> userList = getAll().stream().map(user -> user.getName()).collect(Collectors.toList());
+        List<String> userList = getAll().stream()
+                .map(user -> user.getName())
+                .collect(Collectors.toList());
         userList.add("any user");
         return userList;
     }
@@ -149,97 +159,6 @@ public class UserService {
 
 
 }
-
-
-/*
-	public void addWithDefaultRole(User user) {
-//		ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-//		user.setZonedTime(currentZonedDateTime);
-		String password = user.getPassword();
-		user.setPassword(passwordEncoder.encode(password));
-		UserRole defaultRole = roleRepository.findByRole(DEFAULT_ROLE);
-		user.getRoles().add(defaultRole);
-		userRepository.save(user);
-		System.out.println("user--> " + user);
-	}
-	
-	public boolean isAvailable(User user) {
-		if(userRepository.findByEmail(user.getEmail()) != null){
-			return false;
-		}else {
-			return true;
-		}
-		
-	}
-	
-	public void addAdmin() {
-		User userAdmin = userRepository.findByEmail("latidude99test@gmail.com");
-	    UserRole adminRole = roleRepository.findByRole(ADMIN_ROLE);
-//	    UserRole defaultRole = roleRepository.findByRole(DEFAULT_ROLE);
-	//    List<Contact> adminContacts = contactRepository.findByUserId(userAdmin.getId());
-//	    System.out.println("Contacts (started) before adding to adminUser--> " + adminContacts);
-	    ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-		userAdmin.setRegistered(currentZonedDateTime);
-		userAdmin.getRoles().add(adminRole);
-//		userAdmin.getRoles().add(defaultRole);
-	//	userAdmin.addAllContacts(adminContacts);
-//	    userAdmin.getContacts().forEach(c -> c.setCreated(currentZonedDateTime));
-		String password = userAdmin.getPassword();
-		userAdmin.setPassword(passwordEncoder.encode(password));
-		userAdmin.setEnabled(true);
-//		userAdmin.getContacts().addAll(adminContacts);
-//		System.out.println("userAdmin (started) --> " + userAdmin);
-		userRepository.save(userAdmin);
-	}
-	
-}
-
-*/
-/*	
-	public void addUser(String name) {
-		User userDemo = userRepository.findByFirstName(name.toLowerCase());
-	    UserRole defaultRole = roleRepository.findByRole(DEFAULT_ROLE);
-	  //  List<Contact> demoContacts = contactRepository.findByUserId(userDemo.getId());
-	 //   System.out.println("Contacts (started) before adding to userDemo--> " + demoContacts);
-	    ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-		userDemo.setRegistered(currentZonedDateTime);
-	    userDemo.getRoles().add(defaultRole);
-	 //   userDemo.addAllContacts(demoContacts);
-//	    userDemo.getContacts().forEach(c -> c.setCreated(currentZonedDateTime));
-	    String password = userDemo.getPassword();
-		userDemo.setPassword(passwordEncoder.encode(password));
-		userDemo.setEnabled(true);
-//		userAdmin.getContacts().addAll(adminContacts);
-//		System.out.println("userDemo (started) --> " + userDemo);
-		userRepository.save(userDemo);
-	}
-*/	
-/*	public void updateDetails(User user) {
-		userRepository;
-	}
-	
-		public List<User> getAllUsersNoAdmins(){
-			List<User> usersAll = userRepository.findAll();
-			logger.info("usersAll size: " + usersAll.size() + ", " + usersAll.get(0).getRoles().toString());
-			logger.info("usersAll size: " + usersAll.size() +  ", " + usersAll.get(1).getRoles().toString());
-			UserRole defaultRole = roleRepository.findByRole(DEFAULT_ROLE);
-			List<User> usersRoleUser = usersAll.stream()
-					.filter(u -> u.getRoles().contains(defaultRole))
-					.collect(Collectors.toList());
-			logger.info("usersRoleUser size: " + usersRoleUser.size());
-			return usersRoleUser;
-		}
-*/
-
-
-
-
-
-
-
-
-
-
 
 
 

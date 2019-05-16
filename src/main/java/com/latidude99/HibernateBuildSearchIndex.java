@@ -25,8 +25,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
+import com.latidude99.service.EnquiryService;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -35,6 +38,7 @@ import org.springframework.stereotype.Component;
 @Transactional
 @Component
 public class HibernateBuildSearchIndex implements ApplicationListener<ApplicationReadyEvent> {
+    private static final Logger logger = LoggerFactory.getLogger(HibernateBuildSearchIndex.class);
 
     @Autowired
     private EntityManager entityManager;
@@ -42,10 +46,14 @@ public class HibernateBuildSearchIndex implements ApplicationListener<Applicatio
     @Override
     public void onApplicationEvent(final ApplicationReadyEvent event) {
         try {
-            FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
-            fullTextEntityManager.createIndexer().startAndWait();
+            FullTextEntityManager fullTextEntityManager
+                    = Search.getFullTextEntityManager(entityManager);
+            fullTextEntityManager
+                    .createIndexer()
+                    .startAndWait();
         } catch (InterruptedException e) {
-            System.out.println("An error occurred when trying to build the search index: " + e.toString());
+            logger.error("An error occurred when trying to build the search index: "
+                    + e.toString());
         }
         return;
     }

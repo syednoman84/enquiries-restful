@@ -45,83 +45,33 @@ public class AppConfig implements WebMvcConfigurer {
     EnquiryService enquiryService;
 
 
+    /*
+     * Adds users with roles pre-defined in data.sql
+     * when the application is starting
+     */
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void doSomethingAfterStartup() {
-        userService.addDbUser(Role.APPADMIN); // adding users with roles defined in data.sql
+        userService.addDbUser(Role.APPADMIN);
         userService.addDbUser(Role.ADMIN);
         userService.addDbUser(Role.DEFAULT);
 
-        enquiryService.addProgressUser(13L, 1L); //testing adding progress users
+        /*
+         * Adds progress users to display in sample enquiries
+         */
+        enquiryService.addProgressUser(13L, 1L);
         enquiryService.addProgressUser(14L, 1L);
 
         userService.getAll().forEach(u -> userService.trimUserEmail(u));
     }
 
     @Bean
-//	@Scope(value="session", proxyMode=ScopedProxyMode.TARGET_CLASS)
     public EnquiryListWrapper createEnquiryListWrapper() {
         return new EnquiryListWrapper();
     }
-		
-	
-		
-		
-		
-		
-/*	
-		System.err.println(enquiryService.getById(7L).getProgressUser().toString());
-		System.err.println(enquiryService.getById(8L).getProgressUser().toString());
-		Date date = new Date();
-		System.out.println("date: " + date);
-		Timestamp sqlTimestamp = new java.sql.Timestamp(new java.util.Date().getTime());
-		System.out.println("sqlTimestamp: " + sqlTimestamp);
-*/
 
 
 }
-
-
-/*
-	@Bean
-	   public LocaleResolver localeResolver() {
-	       SessionLocaleResolver sessionLocaleResolver = new SessionLocaleResolver();
-	       sessionLocaleResolver.setDefaultLocale(Locale.US);
-	       return sessionLocaleResolver;
-	   }
-	 
-   @Bean
-   public LocaleChangeInterceptor localeChangeInterceptor() {
-       LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
-       lci.setParamName("lang");
-       return lci;
-   }
-	 
-   @Override
-   public void addInterceptors(InterceptorRegistry registry) {
-       registry.addInterceptor(localeChangeInterceptor());
-   }
-   
-   @Bean //optional?
-   public Java8TimeDialect java8TimeDialect() {
-       return new Java8TimeDialect();
-   }
-   
-   @Bean
-   public FromView fromView() {
-	   return new FromView();
-   }
-	
-
-*/
-
-
-
-
-
-
-
-
-
-
+		
+		
 

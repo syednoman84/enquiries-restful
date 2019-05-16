@@ -78,6 +78,9 @@ public class Enquiry implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    /*
+     * @Field - Hibernate Search annotation
+     */
     @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
     @NotEmpty(message = "{com.latidude99.model.Enquiry.name.NotEmpty}")
     private String name;
@@ -116,21 +119,44 @@ public class Enquiry implements Serializable {
     @Lob
     private byte[] image;
 
-    @OneToMany(mappedBy = "enquiry", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(mappedBy = "enquiry",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.ALL},
+            orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    @Transient //formatting for the View
+    /*
+     * Used for displaying in enquiry/enquiry list views only
+     */
+    @Transient
     private List<User> sortedProgressUsers = new ArrayList<>();
 
-    @Transient //formatting for the View
+    /*
+     * Used for displaying in enquiry/enquiry list views only
+     */
+    @Transient
     private List<String> sortedProgressUsersWithDate = new ArrayList<>();
 
-    @OneToMany(mappedBy = "enquiry", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(mappedBy = "enquiry",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.ALL},
+            orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "enquiry", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    /*
+     * Points of interests, customer enquiry form
+     * (not implemented, went with polygons for now)
+     */
+    @OneToMany(mappedBy = "enquiry",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.ALL},
+            orphanRemoval = true)
     private List<Point> point = new ArrayList<>();
 
+    /*
+     * Easiest way to persist information about users and the time
+     * when they dealt with the enquiry
+     */
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @MapKeyTemporal(TemporalType.TIMESTAMP)
     private Map<java.util.Date, User> progressUser = new TreeMap<>();
@@ -139,19 +165,9 @@ public class Enquiry implements Serializable {
     @JoinColumn(name = "user_closing_id")
     private User closingUser;
 
-
     /*
-        @PrePersist
-        protected void onCreate() {
-            createdDate = ZonedDateTime.now();
-        }
-
-        @PreUpdate
-        protected void onUpdate() {
-
-        }
-    */
-    //to save in DB
+     * Helper method, saves user with date to the Map
+     */
     public void addProgressUser(User user) {
         Map<java.util.Date, User> map = getProgressUser();
         Calendar calendar = Calendar.getInstance();
@@ -163,14 +179,16 @@ public class Enquiry implements Serializable {
             User userRecent = map.get(mostRecent);
             if (!userRecent.equals(user)) {
                 map.put(currentTimestamp, user);
-            }//else if(mostRecent != currentTimestamp)
-            //	map.put(currentTimestamp, user);
+            }
         } else {
             map.put(currentTimestamp, user);
         }
         setProgressUser(map);
     }
 
+    /*
+     * Helper method, removes user with date from the Map
+     */
     public void removeProgressUser(User user) {
         Map<java.util.Date, User> map = getProgressUser();
         if (!map.isEmpty()) {
@@ -182,20 +200,22 @@ public class Enquiry implements Serializable {
         setProgressUser(map);
     }
 
-
-    //to save in DB
+    /*
+     * Helper method
+     */
     public void addAttachment(Attachment attachment) {
         attachment.setEnquiry(this);
         getAttachments().add(attachment);
     }
 
+    /*
+     * Helper method
+     */
     public void addComment(Comment comment) {
         comment.setEnquiry(this);
         getComments().add(comment);
     }
 
-
-//-------------------------------------------------	
 
 
     public byte[] getImage() {
@@ -271,7 +291,6 @@ public class Enquiry implements Serializable {
         this.sortedProgressUsers = sortedProgressUsers;
     }
 
-
     public long getId() {
         return id;
     }
@@ -303,7 +322,6 @@ public class Enquiry implements Serializable {
     public void setMessage(String message) {
         this.message = message;
     }
-
 
     public ZonedDateTime getCreatedDate() {
         return createdDate;
@@ -337,14 +355,11 @@ public class Enquiry implements Serializable {
         this.type = type;
     }
 
-    public List<Point> getPoint() {
-        return point;
-    }
+    public List<Point> getPoint() { return point;  }
 
     public void setPoint(List<Point> point) {
         this.point = point;
     }
-
 
     public User getClosingUser() {
         return closingUser;
@@ -422,7 +437,17 @@ public class Enquiry implements Serializable {
 
     @Override
     public String toString() {
-        return "Enquiry [id=" + id + ", name=" + name + ", email=" + email + ", message=" + message + ", createdDate=" + createdDate + ", closedDate=" + closedDate + ", status=" + status + ", type=" + type + ", point=" + point + ", progressUser=" + progressUser + ", closingUser=" + closingUser + "]";
+        return "Enquiry [id=" + id +
+                ", name=" + name +
+                ", email=" + email +
+                ", message=" + message +
+                ", createdDate=" + createdDate +
+                ", closedDate=" + closedDate +
+                ", status=" + status +
+                ", type=" + type +
+                ", point=" + point +
+                ", progressUser=" + progressUser +
+                ", closingUser=" + closingUser + "]";
     }
 
 
