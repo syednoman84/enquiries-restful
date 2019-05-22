@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -35,6 +36,7 @@ import com.latidude99.service.EnquiryService;
 import com.latidude99.service.UserService;
 import com.latidude99.util.EnquiryListWrapper;
 
+@Profile("!test")
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 

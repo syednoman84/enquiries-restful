@@ -122,7 +122,7 @@ public class EnquiryController {
             enquiryToSave.setPolygonEncoded(enquiry.getPolygonEncoded());
             enquiryToSave.setCreatedDate(ZonedDateTime.now());
             enquiryToSave.setStatus("waiting");
-            System.out.println("files.length: " + files.length);
+            logger.info("Files length: " + files.length);
             try {
                 if (files != null && files.length > 0) {
                     int filesNumber = files.length;
@@ -168,8 +168,9 @@ public class EnquiryController {
      * Displays detailed enquiry view from database
      */
     @PostMapping("/enquiry/page")
-    public String enquiryPage(@ModelAttribute Enquiry enquiry, Model model, Principal principal,
-                              HttpServletResponse response) {
+    public String enquiryPage(@ModelAttribute Enquiry enquiry, Model model, Principal principal
+                             /* HttpServletResponse response */) {
+        System.out.println("test");
         User currentUser = userService.getUserByUsername(principal.getName());
         model.addAttribute("currentUser", currentUser);
         Long waiting = enquiryService.getNumByStatus("waiting");

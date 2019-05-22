@@ -21,52 +21,18 @@
 
 package com.latidude99.model;
 
-import java.io.Serializable;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Index;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyTemporal;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-
-import org.hibernate.search.annotations.Analyze;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Index;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.Store;
+import java.io.Serializable;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 
 @Indexed
@@ -95,10 +61,14 @@ public class Enquiry implements Serializable {
     @Size(max = 4096, message = "{com.latidude99.model.Enquiry.message.Size}")
     private String message;
 
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @Field(index = Index.YES,
+            analyze = Analyze.YES,
+            store = Store.NO)
     private String phone;
 
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @Field(index = Index.YES,
+            analyze = Analyze.YES,
+            store = Store.NO)
     private String isbn;
 
     private ZonedDateTime createdDate;
@@ -119,10 +89,12 @@ public class Enquiry implements Serializable {
     @Lob
     private byte[] image;
 
+    // apparently JPA doesn't allow for more than 2 eagerly fetched collections
     @OneToMany(mappedBy = "enquiry",
-            fetch = FetchType.LAZY,
+//            fetch = FetchType.LAZY, // unit tests fail with this, without workaround
             cascade = {CascadeType.ALL},
             orphanRemoval = true)
+    @LazyCollection(LazyCollectionOption.FALSE) // this works for unit tests
     private List<Comment> comments = new ArrayList<>();
 
     /*
@@ -147,12 +119,12 @@ public class Enquiry implements Serializable {
      * Points of interests, customer enquiry form
      * (not implemented, went with polygons for now)
      */
-    @OneToMany(mappedBy = "enquiry",
+ /*   @OneToMany(mappedBy = "enquiry",
             fetch = FetchType.LAZY,
             cascade = {CascadeType.ALL},
             orphanRemoval = true)
     private List<Point> point = new ArrayList<>();
-
+*/
     /*
      * Easiest way to persist information about users and the time
      * when they dealt with the enquiry
@@ -354,13 +326,13 @@ public class Enquiry implements Serializable {
     public void setType(String type) {
         this.type = type;
     }
-
+/*
     public List<Point> getPoint() { return point;  }
 
     public void setPoint(List<Point> point) {
         this.point = point;
     }
-
+*/
     public User getClosingUser() {
         return closingUser;
     }
@@ -388,7 +360,7 @@ public class Enquiry implements Serializable {
         result = prime * result + (int) (id ^ (id >>> 32));
         result = prime * result + ((message == null) ? 0 : message.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((point == null) ? 0 : point.hashCode());
+//        result = prime * result + ((point == null) ? 0 : point.hashCode());
         result = prime * result + ((progressUser == null) ? 0 : progressUser.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -420,10 +392,10 @@ public class Enquiry implements Serializable {
         if (name == null) {
             if (other.name != null) return false;
         } else if (!name.equals(other.name)) return false;
-        if (point == null) {
+/*        if (point == null) {
             if (other.point != null) return false;
         } else if (!point.equals(other.point)) return false;
-        if (progressUser == null) {
+*/        if (progressUser == null) {
             if (other.progressUser != null) return false;
         } else if (!progressUser.equals(other.progressUser)) return false;
         if (status == null) {
@@ -445,7 +417,7 @@ public class Enquiry implements Serializable {
                 ", closedDate=" + closedDate +
                 ", status=" + status +
                 ", type=" + type +
-                ", point=" + point +
+//                ", point=" + point +
                 ", progressUser=" + progressUser +
                 ", closingUser=" + closingUser + "]";
     }

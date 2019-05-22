@@ -23,7 +23,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <junit-platform.version>5.4.1</junit-platform.version>
-        <mockito.version>2.24.0</mockito.version>
+        <mockito.version>2.24.0</mockito.version><!-- 2.23.4 -->
+        <bytebuddy.version>1.9.12</bytebuddy.version> <!-- bellow 1.9.7 Mockito has problems -->
     </properties>
 
     <build>
@@ -44,14 +45,64 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>full</id>
+            <properties>
+                <groups>slice</groups>
+            </properties>
+        </profile>
+        <profile>
+            <id>slice</id>
+            <properties>
+                <groups>full</groups>
+            </properties>
+        </profile>
+        <profile>
+            <id>all-tests</id>
+            <properties>
+                <groups>full,slice</groups>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
-        <!-- JUnit 5 - @ExtendWith(SpringExtension.class - (neccessary for Spring Boot 1.5) -->
+        <!-- https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy -->
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${bytebuddy.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent -->
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>${bytebuddy.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!-- for passing an object to mocked post requests instead od params // not used now-->
+        <dependency>
+            <groupId>io.florianlopes</groupId>
+            <artifactId>spring-mvc-test-utils</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JUnit 5 - @ExtendWith(SpringExtension.class - (neccessary for Spring Boot 1.5)
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>5.0.7.RELEASE</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>  -->
         <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -66,6 +117,14 @@
             <version>${junit-platform.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- junit 5 -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite-api</artifactId>
+            <version>1.4.2</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
