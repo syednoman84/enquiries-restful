@@ -42,41 +42,33 @@ public class FormBean {
 		return userId;
 	}
 
-
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
-
 
 	public String getEnquiryId() {
 		return enquiryId;
 	}
 
-
 	public void setEnquiryId(String enquiryId) {
 		this.enquiryId = enquiryId;
 	}
-
 
 	public String getCommentTitle() {
 		return commentTitle;
 	}
 
-
 	public void setCommentTitle(String commentTitle) {
 		this.commentTitle = commentTitle;
 	}
-
 
 	public String getCommentContent() {
 		return commentContent;
 	}
 
-
 	public void setCommentContent(String commentContent) {
 		this.commentContent = commentContent;
 	}
-
 
 	public String getSelector() {
 		return selector;

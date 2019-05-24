@@ -94,7 +94,7 @@ public class Enquiry implements Serializable {
 //            fetch = FetchType.LAZY, // unit tests fail with this, without workaround
             cascade = {CascadeType.ALL},
             orphanRemoval = true)
-    @LazyCollection(LazyCollectionOption.FALSE) // this works for unit tests
+    @LazyCollection(LazyCollectionOption.FALSE) // this works for tests
     private List<Comment> comments = new ArrayList<>();
 
     /*
@@ -110,9 +110,10 @@ public class Enquiry implements Serializable {
     private List<String> sortedProgressUsersWithDate = new ArrayList<>();
 
     @OneToMany(mappedBy = "enquiry",
-            fetch = FetchType.LAZY,
+ //           fetch = FetchType.LAZY,
             cascade = {CascadeType.ALL},
             orphanRemoval = true)
+    @LazyCollection(LazyCollectionOption.FALSE) // this works for tests`
     private List<Attachment> attachments = new ArrayList<>();
 
     /*

@@ -161,6 +161,9 @@ public class EnquiryController {
         logger.info("polygon round brackets: " + enquiry.getPolygon());
         logger.info("polygon square brackets: " +
                 enquiryService.convertRoundBracketToSquareCoordsArrayString(enquiry.getPolygon()));
+        for (MultipartFile file : files) {
+            System.err.println(file.getOriginalFilename());
+        }
         return "enquirySubmit";
     }
 

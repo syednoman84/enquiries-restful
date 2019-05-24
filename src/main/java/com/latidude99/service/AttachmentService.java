@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 import com.latidude99.model.Attachment;
 import com.latidude99.repository.AttachmentRepository;
 
+import java.util.List;
+
 @Service
 public class AttachmentService {
 
@@ -39,6 +41,10 @@ public class AttachmentService {
         return attachmentRepository.findById(id);
     }
 
-    ;
+
+    public List<Attachment> getAll(){
+        return attachmentRepository.findAll();
+    }
+
 
 }
