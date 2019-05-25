@@ -79,6 +79,14 @@ public class EnquiryService {
         enquiryRepository.save(enquiry);
     }
 
+    public List<Enquiry> getAll(){
+        return enquiryRepository.findAll();
+    }
+
+    public Enquiry getFirstByName(String name){
+        return enquiryRepository.findFirstByName(name);
+    }
+
     public Enquiry getById(long id) {
         return enquiryRepository.findById(id);
     }

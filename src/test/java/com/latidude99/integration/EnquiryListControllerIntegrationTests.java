@@ -44,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @TestPropertySource(locations = "/test.properties")
 @AutoConfigureMockMvc(secure=false)
-public class EnquiryListControllerIntegrationTest {
+public class EnquiryListControllerIntegrationTests {
 
     @Autowired
     private WebApplicationContext context;

@@ -64,7 +64,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(locations = "/test.properties")
 @AutoConfigureMockMvc(secure=false)
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class EnquiryControllerIntegrationTest {
+public class EnquiryControllerIntegrationTests {
 
     static Enquiry enquiry = new Enquiry();
     static FormBean formBean = new FormBean();

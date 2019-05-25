@@ -18,6 +18,7 @@ import org.springframework.test.annotation.Commit;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -26,6 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.Charset;
+import java.util.List;
 
 import static com.latidude99.CustomSecurityMockMvcRequestPostProcessors.demo;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +40,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -59,8 +63,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @TestPropertySource(locations = "/test.properties")
 @AutoConfigureMockMvc(secure=false)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class EnquiryFormIntegrationTest {
+public class EnquiryFormIntegrationTests {
 
     static Enquiry enquiry = new Enquiry();
     static FormBean formBean = new FormBean();
@@ -94,19 +99,25 @@ public class EnquiryFormIntegrationTest {
     }
 
 
-
+    @Order(1)
     @Test
     @DisplayName("EnquiryController - @/enquiry/form - submits enquiry form")
     @Commit
+    @Sql(scripts = "/clear-and-load-data.sql", executionPhase = BEFORE_TEST_METHOD)
     public void enquiryFormTest_1() throws Exception {
 
+
+        /*
+         * MockMultipartFile parameter "name" (files) has to be the same as
+         * "@RequestParam MultipartFile[] files" in the controller to be seen as an array
+         */
         MockMultipartFile firstFile = new MockMultipartFile(
-                "data", "jpg-file.jpg", "application/octet-stream",
+                "files", "jpg-file.jpg", "application/octet-stream",
                 "src\\test\\resources\\multipart-test.jpg".getBytes());
         MockMultipartFile secondFile = new MockMultipartFile(
-                "data", "xml-file.txt", "text/plain", "xml".getBytes());
+                "files", "xml-file.txt", "text/plain", "xml".getBytes());
         MockMultipartFile thirdFile = new MockMultipartFile(
-                "data", "other-file-type.data", "text/plain", "some other type".getBytes());
+                "files", "other-file-type.data", "text/plain", "some other type".getBytes());
 
         MvcResult result = this.mockMvc
                 .perform(multipart("/enquiry/form")
@@ -151,37 +162,40 @@ public class EnquiryFormIntegrationTest {
     /*
      * Has to be run with the previous test1, checks changes commited to database
      */
+
+    @Order(2)
     @Test
     @DisplayName("EnquiryController - @/enquiry/form - checks enquiry entry")
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)  // new test DB loaded after
+    //@DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)  // new test DB loaded after
+    @Sql(scripts = "/clear-and-load-data.sql", executionPhase = AFTER_TEST_METHOD)
     public void enquiryFormTest_2() throws Exception {
 
-        Enquiry enquiryPost = enquiryService.getById(19); // first free slot
+        Enquiry enquiryPost = enquiryService.getFirstByName("Integration Test"); // entry from test1
 
         assertNotNull(enquiryPost);
 
-        assertEquals("Integration Test", enquiryPost.getName(),
-                "enquiryPost incorrect name property");
-        assertEquals("integration@test.com", enquiryPost.getEmail(),
-                "enquiryPost incorrect email property");
-        assertEquals("1234567890", enquiryPost.getPhone(),
-                "enquiryPost incorrect phone property");
-        assertEquals("Customised maps", enquiryPost.getType(),
-                "enquiryPost incorrect type property");
-        assertEquals("Spring Boot 2 integration test, form", enquiryPost.getMessage(),
-                "enquiryPost incorrect message property");
-        assertEquals("[ [-22.890469493606766, -43.17379993563645] ]", enquiryPost.getPolygon(),
-                "enquiryPost incorrect polygon property");  //  service method adds [  ]
-        assertEquals("EflAroGtcAln@nwD`yC~zK}Fn`Gk}B`{@kcH_",
-                enquiryPost.getPolygonEncoded(),"enquiryPost incorrect encodedPolygon property");
+        assertAll("enquiry properties",
+                () -> assertEquals(19, enquiryService.getAll().size(), "incorrect enquiries number"),
+                () -> assertEquals("Integration Test", enquiryPost.getName(),
+                "enquiryPost incorrect name property"),
+                () -> assertEquals("integration@test.com", enquiryPost.getEmail(),
+                "enquiryPost incorrect email property"),
+                () -> assertEquals("1234567890", enquiryPost.getPhone(),
+                "enquiryPost incorrect phone property"),
+                () -> assertEquals("Customised maps", enquiryPost.getType(),
+                "enquiryPost incorrect type property"),
+                () -> assertEquals("Spring Boot 2 integration test, form", enquiryPost.getMessage(),
+                "enquiryPost incorrect message property"),
+                () -> assertEquals("[ [-22.890469493606766, -43.17379993563645] ]", enquiryPost.getPolygon(),
+                "enquiryPost incorrect polygon property"),  //  service method adds [  ]
+                () -> assertEquals("EflAroGtcAln@nwD`yC~zK}Fn`Gk}B`{@kcH_",
+                enquiryPost.getPolygonEncoded(),"enquiryPost incorrect encodedPolygon property"));
 
-/*
-        assertEquals(3, attachmentService.getAll().size());
         assertAll("files/attachments",
+                () -> assertEquals(3, attachmentService.getAll().size()),
                 () -> assertEquals("jpg-file.jpg", enquiryPost.getAttachments().get(0).getName()),
                 () -> assertEquals("xml-file.txt", enquiryPost.getAttachments().get(1).getName()),
                 () -> assertEquals("other-file-type.data", enquiryPost.getAttachments().get(2).getName()));
-*/
 
     }
 

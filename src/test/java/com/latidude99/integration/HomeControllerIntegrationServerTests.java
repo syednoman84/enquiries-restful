@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(locations = "/test.properties")
 @AutoConfigureMockMvc
 @AutoConfigureWebTestClient
-public class HomeControllerIntegrationServerTest {
+public class HomeControllerIntegrationServerTests {
 
     private URL baseUrl;
 

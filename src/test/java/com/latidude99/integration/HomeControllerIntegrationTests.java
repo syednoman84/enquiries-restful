@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = HomeController.class)
 @TestPropertySource(locations = "/test.properties")
 @AutoConfigureMockMvc(secure=false)
-public class HomeControllerIntegrationTest {
+public class HomeControllerIntegrationTests {
 
     @Autowired
     private HomeController homeController;

@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestPropertySource(locations = "/test.properties")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class UserRepositoryTests {
+public class UserRepositoryIntegrationTests {
 
     @Autowired
     UserRepository userRepository;

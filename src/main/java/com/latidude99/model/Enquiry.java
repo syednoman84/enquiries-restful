@@ -91,7 +91,7 @@ public class Enquiry implements Serializable {
 
     // apparently JPA doesn't allow for more than 2 eagerly fetched collections
     @OneToMany(mappedBy = "enquiry",
-//            fetch = FetchType.LAZY, // unit tests fail with this, without workaround
+//            fetch = FetchType.LAZY, // tests fail with this, without workaround
             cascade = {CascadeType.ALL},
             orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.FALSE) // this works for tests
@@ -116,6 +116,8 @@ public class Enquiry implements Serializable {
     @LazyCollection(LazyCollectionOption.FALSE) // this works for tests`
     private List<Attachment> attachments = new ArrayList<>();
 
+
+
     /*
      * Points of interests, customer enquiry form
      * (not implemented, went with polygons for now)
@@ -126,6 +128,8 @@ public class Enquiry implements Serializable {
             orphanRemoval = true)
     private List<Point> point = new ArrayList<>();
 */
+
+
     /*
      * Easiest way to persist information about users and the time
      * when they dealt with the enquiry

@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @TestPropertySource(locations = "/test.properties")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class EnquiryRepositoryTests {
+public class EnquiryRepositoryIntegrationTests {
 
     @Autowired
     EnquiryRepository enquiryRepository;
@@ -40,7 +40,7 @@ public class EnquiryRepositoryTests {
     }
 
     @Test
-    @DisplayName("EnquiryRepository, testing basic properties")
+    @DisplayName("EnquiryRepository, fetch basic properties")
     public void enquiryTest_2(){
         Enquiry expectedEnquiry = new Enquiry();
         expectedEnquiry.setName("Kris Triggle");
@@ -78,7 +78,7 @@ public class EnquiryRepositoryTests {
     }
 
     @Test
-    @DisplayName("EnquiryRepository, testing collection properties")
+    @DisplayName("EnquiryRepository, fetch collection properties")
     public void enquiryTest_3(){
 
         Enquiry actualEnquiry1 = enquiryRepository.findById(5);

@@ -1,0 +1,1 @@
+INSERT INTO enquiry(phone, isbn, status, closed_date, created_date, email, message, type, name, user_closing_id) VALUES ("1111111111", "2222222222", "test in progress", null, "1500-00-00 10:00:00", "enquiry_test@test.com", "enquiry from the enquiry_test.sql file in test/resources", "Test Type", "Enquiry Test", null);

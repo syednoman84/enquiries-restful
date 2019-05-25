@@ -37,6 +37,8 @@ public interface EnquiryRepository extends JpaRepository<Enquiry, Long> {
 
     Enquiry findById(long id);
 
+    Enquiry findFirstByName(String name);
+
     List<Enquiry> findAll();
 
     List<Enquiry> findByIdIn(List<Long> list);
