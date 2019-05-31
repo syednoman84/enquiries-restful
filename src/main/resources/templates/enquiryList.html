@@ -295,10 +295,10 @@
                                             <option th:field="*{searchIn}" value="in customer phone numbers">in customer
                                                 phone numbers
                                             </option>
-                                            <option th:field="*{searchIn}" value="iin enquiry messages">in enquiry
+                                            <option th:field="*{searchIn}" value="in enquiry messages">in enquiry
                                                 messages
                                             </option>
-                                            <option th:field="*{searchIn}" value="iin enquiry messages">in product isbn
+                                            <option th:field="*{searchIn}" value="in enquiry messages">in product isbn
                                             </option>
                                         </select>
                                     </div>
@@ -324,7 +324,7 @@
                                     <div class="float-left pr-2 flex-fill">
                                         <span>assigned to:</span>
                                         <div th:if="${searchWrapper.userList != null and not #lists.isEmpty(searchWrapper.userList)}">
-                                            <select id="assignedUser" name="assignedUser"
+                                            <select th:id="assignedUser" th:name="assignedUser"
                                                     style="height: 25px; font-size:13px; padding:0px 5px 0px 10px;"
                                                     class="custom-select mb-0">
                                                 <option th:each="userString : *{userList}"
@@ -340,7 +340,7 @@
                                     <div class="float-left pr-0 flex-fill">
                                         <span>closed by:</span>
                                         <div th:if="${searchWrapper.userList != null and not #lists.isEmpty(searchWrapper.userList)}">
-                                            <select id="closingUser" name="closingUser"
+                                            <select th:id="closingUser" th:name="closingUser"
                                                     style="height: 25px; font-size:13px; padding:0px 5px 0px 10px;"
                                                     class="custom-select mb-0">
                                                 <option th:each="userString : *{userList}"

@@ -1,0 +1,1 @@
+INSERT INTO user(name, email, password, enabled, registered, activation_token) VALUES ("Test User", "test_user@test.com", "111111","0", "2019-01-01 10:00:00", "testActivationTokenString");

@@ -4,6 +4,7 @@ import com.latidude99.model.Comment;
 import com.latidude99.model.Enquiry;
 import com.latidude99.model.User;
 import com.latidude99.repository.EnquiryRepository;
+import com.latidude99.repository.UserRepository;
 import org.hibernate.Hibernate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -12,12 +13,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
+
+/*
+ * Uses pre-defined DB entries in data.sql
+ * and method level sql scripts loading and
+ * removing DB entries
+ */
 
 @Tag("slow")
 @TestPropertySource(locations = "/test.properties")
@@ -27,6 +37,9 @@ public class EnquiryRepositoryIntegrationTests {
 
     @Autowired
     EnquiryRepository enquiryRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Test
     @DisplayName("EnquiryRepository test - number of enquiries")
@@ -86,6 +99,60 @@ public class EnquiryRepositoryIntegrationTests {
 
         assertEquals(0, actualEnquiry1.getComments().size());
         assertEquals(2, actualEnquiry2.getProgressUser().size());
+    }
+
+    @Test
+    @DisplayName("EnquiryRepository - save enquiries with ManyToMany & ManyToOne")
+    @Sql(scripts = "/enquiry_repository_integration_test_4_add_users.sql", executionPhase = BEFORE_TEST_METHOD)
+    public void userRepositoryTest4() {
+
+        User user3Sql = userRepository.findByEmail("user3@test.com");
+        User user4Sql = userRepository.findByEmail("user4@test.com");
+
+        Enquiry enquiry1 = new Enquiry();
+        enquiry1.setName("test customer1");
+        enquiry1.setEmail(("cust1@test.com"));
+        enquiry1.setType("enquiry 1 type");
+        enquiry1.setMessage("customer 1 message");
+        enquiry1.addProgressUser(user3Sql);
+
+        Enquiry enquiry2 = new Enquiry();
+        enquiry2.setName("test customer2");
+        enquiry2.setEmail(("cust2@test.com"));
+        enquiry2.setType("enquiry 2 type");
+        enquiry2.setMessage("customer 2 message");
+        enquiry2.addProgressUser(user4Sql);
+        enquiry2.setClosingUser(user3Sql);
+
+        Enquiry enquiry3 = new Enquiry();
+        enquiry3.setName("test customer3");
+        enquiry3.setEmail(("cust3@test.com"));
+        enquiry3.setType("enquiry 3 type");
+        enquiry3.setMessage("customer 3 message");
+        enquiry3.addProgressUser(user4Sql);
+        enquiry3.setClosingUser(user3Sql);
+
+
+        enquiryRepository.save(enquiry1);
+        enquiryRepository.save(enquiry2);
+        enquiryRepository.save(enquiry3);
+
+        User user3Found = userRepository.findByEmail("user3@test.com");
+        User user4Found = userRepository.findByEmail("user4@test.com");
+
+        System.out.println(enquiry1);
+        System.out.println(enquiry2);
+        System.out.println(enquiry3);
+
+        assertAll("user collection properties match",
+                () -> assertEquals(2, user3Found.getEnquiriesClosed().size(),
+                        "user 3 - enquiries closed incorrect number"),
+                () -> assertEquals(1, user3Found.getEnquiriesProgress().size(),
+                        "user 3 - enquiries assigned incorrect number"),
+                () -> assertEquals(2, user4Found.getEnquiriesProgress().size(),
+                        "user 4 - enquiries assigned incorrect number"),
+                () -> assertEquals(0, user4Found.getEnquiriesClosed().size(),
+                        "user 4 - enquiries closed incorrect number"));
     }
 
 }

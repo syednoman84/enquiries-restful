@@ -105,6 +105,9 @@ public class UserController {
         } else {
             String currentUserName = principal.getName();
             User currentUser = userService.getUserByUsername(currentUserName);
+            System.out.println("controller, user.getPassword(): " + user.getPassword());
+            System.out.println("controller, currentUser.getPassword(): " + currentUser.getPassword());
+            System.out.flush();
             if (passwordEncoder.matches(user.getPassword(), currentUser.getPassword())) {
                 currentUser.setPassword(passwordEncoder.encode(user.getPasswordNew()));
                 userService.save(currentUser);
@@ -163,7 +166,6 @@ public class UserController {
             userService.save(user);
             model.addAttribute("user", user);
             model.addAttribute("invalidToken", null);
-            logger.info("User reset link sent");
         }
         return "reset";
     }

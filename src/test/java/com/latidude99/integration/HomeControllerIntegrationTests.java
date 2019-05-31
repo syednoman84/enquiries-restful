@@ -10,9 +10,11 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -37,12 +39,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 
 @Tag("slow")
-@Tag("serverMock")
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = HomeController.class)
+@SpringBootTest
 @TestPropertySource(locations = "/test.properties")
 @AutoConfigureMockMvc(secure=false)
+@AutoConfigureTestDatabase(replace=AutoConfigureTestDatabase.Replace.NONE)
 public class HomeControllerIntegrationTests {
 
     @Autowired

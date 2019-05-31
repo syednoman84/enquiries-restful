@@ -64,7 +64,7 @@ public class EnquiryListController {
     public FormBean createFormBean() {
         FormBean formBean = new FormBean();
         formBean.setSelector("0");
-        formBean.setNumber(100);
+        formBean.setNumber(100); // default enquiry load number
         return formBean;
     }
 
@@ -84,12 +84,12 @@ public class EnquiryListController {
         searchWrapper.setUserList(userService.getUserListAsStringList());
         searchWrapper.setAssignedUser("any user");
         searchWrapper.setClosingUser("any user");
-        searchWrapper.setCustomer("all");
+//        searchWrapper.setCustomer("all"); // not in use for now
         return searchWrapper;
     }
 
     /*
-     * Main screen displaed after logging in
+     * Main screen displayed after logging in
      */
     @GetMapping("/enquiry/list")
     public String enquiryList(Model model, Principal principal) {
@@ -125,7 +125,6 @@ public class EnquiryListController {
                 enquiryListToUpdate, enquiry.getId(), enquiry.getStatus());
         enquiryListWrapper.setEnquiryList(enquiryListUpdated);
         model.addAttribute("enquiryListWrapper", enquiryListWrapper);
-        enquiryListWrapper.getEnquiryList().forEach(e -> System.out.println(e.getSortedProgressUsersWithDate()));
         Long waiting = enquiryService.getNumByStatus("waiting");
         model.addAttribute("waiting", waiting);
         Long opened = enquiryService.getNumByStatus("in progress");
@@ -143,7 +142,7 @@ public class EnquiryListController {
 
     /*
      * Search by enquiry/customer properties, single or multiple combination thereof
-     * (implemented, needs more thorough testing for edge cases)
+     * (implemented, needs thorough testing for edge cases)
      */
     @PostMapping("/enquiry/search/regular")
     public String enquirySearchRegular(@ModelAttribute SearchWrapper searchWrapper, Model model, Principal principal) {
@@ -417,7 +416,7 @@ public class EnquiryListController {
     }
 
     /*
-     * Displays enquiries assigned the logged in user and closed (by another user)
+     * Displays enquiries assigned to the logged in user and closed (by another user)
      */
     @GetMapping("/enquiry/list/closed/user/assigned")
     public String enquiryListClosedAndUserAssigned(Model model, Principal principal) {

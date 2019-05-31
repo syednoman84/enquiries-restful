@@ -199,8 +199,9 @@ public class EnquiryService {
                     .replaceAll("\u00A0", "");
             notValid = 0;
             for (int i = 0; i < s.length(); i++) {
-                if (!s.substring(i, i+1).matches("[0-9]+"))
-                    notValid++;
+                if (!(s.substring(i, i+1).matches("[0-9]+")
+                        || s.substring(i, i+1).matches("-"))) // not sure why it worked without this
+                    notValid++;                                     // for range (the whole app not tests)
             }
             if (!s.isEmpty() && notValid < 1) numbersList.add(s);
         }

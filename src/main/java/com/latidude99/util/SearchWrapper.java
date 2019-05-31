@@ -42,7 +42,7 @@ public class SearchWrapper {
     private List<String> userList;
     private String assignedUser;
     private String closingUser;
-    private String customer;
+  //  private String customer;
 
 
     public String getAssignedUser() {
@@ -132,6 +132,7 @@ public class SearchWrapper {
     public void setUserList(List<String> userList) {
         this.userList = userList;
     }
+/*
 
     public String getCustomer() {
         return customer;
@@ -140,8 +141,12 @@ public class SearchWrapper {
     public void setCustomer(String customer) {
         this.customer = customer;
     }
+*/
 
-
+    @Override
+    public String toString() {
+        return "SearchWrapper{" + "searchFor='" + searchFor + '\'' + ", selector='" + selector + '\'' + ", limit=" + limit + ", searchIn='" + searchIn + '\'' + ", status='" + status + '\'' + ", dateRange='" + dateRange + '\'' + ", sortBy='" + sortBy + '\'' + ", direction='" + direction + '\'' + ", userList=" + userList + ", assignedUser='" + assignedUser + '\'' + ", closingUser='" + closingUser + '\'' + '}';
+    }
 }
 
 

@@ -195,10 +195,7 @@ INSERT INTO enquiry(phone, isbn, status, closed_date, created_date, email, messa
  INSERT INTO enquiry_progress_user(enquiries_progress_id, progress_user_id, progress_user_key) VALUES ("17", "4", "2018-08-10 21:14:44");
  INSERT INTO enquiry_progress_user(enquiries_progress_id, progress_user_id, progress_user_key) VALUES ("18", "4", "2018-08-11 21:14:44");
  
-INSERT INTO mailing_list(name, email, added, sent_number) VALUES ("Lati Dude", "latidude99@gmail.com", "2018-07-01 21:14:44", "1243");
-INSERT INTO mailing_list(name, email, added, sent_number) VALUES ("Lati Test", "latidude99test@gmail.com", "2018-07-11 21:14:44", "23");
-INSERT INTO mailing_list(name, email, added, sent_number) VALUES ("Test", "test@gmail.com", "2018-07-01 13:56:34", "65");
-INSERT INTO mailing_list(name, email, added, sent_number) VALUES ("Demo", "demo@gmail.com", "2018-07-21 11:17:45", "132");
+
 
 INSERT INTO comment(content, date, user_name, enquiry_id) VALUES ("This is test comment number 1 blablablablabla blablablablabl ablabla bla blablablablabl ablabla blablablablabla  blabla blablabla", "2018-08-06 21:16:44", "Demo", "1");
 INSERT INTO comment(content, date, user_name, enquiry_id) VALUES ("This is test comment number 2 blabla b labla blablablablablablab lablablabla bla blablablablablab labl abla blablablablablabl abla", "2018-08-06 21:56:44", "Lati", "1");

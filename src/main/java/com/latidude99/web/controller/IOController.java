@@ -100,7 +100,7 @@ public class IOController {
 
         ByteArrayInputStream bis = null;
         try {
-            Map<String, Enquiry> data = new HashMap<String, Enquiry>();
+            Map<String, Enquiry> data = new HashMap<>();
             data.put("enquiry", enquiryToView);
             bis = pdfCreator.createPdf("enquiryPagePdf", data);
         } catch (Exception e) {

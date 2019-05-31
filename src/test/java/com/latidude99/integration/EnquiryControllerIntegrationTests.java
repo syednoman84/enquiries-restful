@@ -1,20 +1,13 @@
 package com.latidude99.integration;
 
-import com.latidude99.model.Comment;
 import com.latidude99.model.Enquiry;
-import com.latidude99.model.User;
 import com.latidude99.util.FormBean;
 import com.latidude99.web.controller.EnquiryController;
-import net.bytebuddy.implementation.bind.annotation.FieldValue;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
@@ -26,21 +19,12 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.xml.transform.Result;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
 import static com.latidude99.CustomSecurityMockMvcRequestPostProcessors.demo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasToString;
 import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -54,10 +38,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *    database when starting the app and context wouldn't load with it
  *  - (secure=false) - to work around Spring Security authentication
  *  - tests Enquiry image property at http://localhost:8080/image/4 (test3)
+ *  - uses pre-defined entries in DB, loaded from data.sql
  */
 
 @Tag("slow")
-@Tag("serverMock")
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest

@@ -76,6 +76,8 @@ public class AdminController {
     @GetMapping("/admin")
     public String admin(Model model, Principal principal) {
         User currentUser = userService.getUserByUsername(principal.getName());
+        UserRole roleAdmin = userRoleService.getUserRole(Role.ADMIN.getText());
+        UserRole roleAppAdmin = userRoleService.getUserRole(Role.APPADMIN.getText());
         model.addAttribute("currentUser", currentUser);
         Long waiting = enquiryService.getNumByStatus("waiting");
         model.addAttribute("waiting", waiting);
@@ -87,14 +89,19 @@ public class AdminController {
         model.addAttribute("openedByUser", openedByUser);
         Long closedByUser = enquiryService.getNumByClosingUserAndStatus(currentUser, "opened");
         model.addAttribute("closedByUser", closedByUser);
-        List<User> users = userService.getAllSinCurrent(currentUser);
-        model.addAttribute("users", users);
-        model.addAttribute("emailResetOK", null);
-        model.addAttribute("emailActivationOK", null);
-        model.addAttribute("emailResetError", null);
-        model.addAttribute("admin", null);
-        model.addAttribute("privileges", null);
-        return "enquiryAdmin";
+        if (currentUser.getRoles().contains(roleAdmin) ||
+                currentUser.getRoles().contains(roleAppAdmin)){
+            List<User> users = userService.getAllSinCurrent(currentUser);
+            model.addAttribute("users", users);
+            model.addAttribute("emailResetOK", null);
+            model.addAttribute("emailActivationOK", null);
+            model.addAttribute("emailResetError", null);
+            model.addAttribute("admin", null);
+            model.addAttribute("privileges", null);
+            return "enquiryAdmin";
+        }else{
+            return "enquiryUser";
+        }
     }
 
     /*
@@ -549,7 +556,7 @@ public class AdminController {
     }
 
     /*
-     * Processes adding nwe users with ADMIN priviledges
+     * Processes adding new users with ADMIN priviledges
      */
     @PostMapping("/user/add/adminRole")
     public String addUserAdmin(@ModelAttribute @Valid User userNew, BindingResult bindResult,

@@ -85,11 +85,16 @@ public class User implements Serializable {
     private Set<UserRole> roles = new HashSet<>();
 
     // enquiries that user has been dealing with
-    @ManyToMany(mappedBy = "progressUser", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "progressUser",
+            cascade = CascadeType.PERSIST,
+            fetch = FetchType.EAGER)
     private List<Enquiry> enquiriesProgress = new ArrayList<>();
 
     // enquiries that user has closed
-    @OneToMany(mappedBy = "closingUser", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "closingUser",
+            fetch = FetchType.EAGER,
+            cascade = {CascadeType.MERGE, CascadeType.REMOVE},
+            orphanRemoval = true)
     private List<Enquiry> enquiriesClosed = new ArrayList<>();
 
 

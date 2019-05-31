@@ -134,7 +134,8 @@ public class Enquiry implements Serializable {
      * Easiest way to persist information about users and the time
      * when they dealt with the enquiry
      */
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.EAGER,
+            cascade = CascadeType.MERGE)  // PERSIST throws 'detached entity' exception in tests
     @MapKeyTemporal(TemporalType.TIMESTAMP)
     private Map<java.util.Date, User> progressUser = new TreeMap<>();
 

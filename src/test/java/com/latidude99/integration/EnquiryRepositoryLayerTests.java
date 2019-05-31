@@ -23,13 +23,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
-@Tag("slow")
+
+/*
+ * Uses pre-defined DB entries in data.sql
+ * and method level sql scripts loading and
+ * removing DB entries
+ */
+
+@Tag("medium")
 @TestPropertySource(locations = "/test.properties")
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 @AutoConfigureTestDatabase(replace=AutoConfigureTestDatabase.Replace.NONE)
 public class EnquiryRepositoryLayerTests {
 
+    User user;
     public Enquiry expectedEnquiry;
     public List<Comment> comments;
 
@@ -41,7 +49,7 @@ public class EnquiryRepositoryLayerTests {
 
     @BeforeEach
     public void init(){
-        User user = new User();
+        user = new User();
         user.setName("Test User");
         user.setEmail("test@test.com");
         comments = new ArrayList<>();
@@ -81,39 +89,50 @@ public class EnquiryRepositoryLayerTests {
 
     @Test
     @DisplayName("EnquiryRepository, fetch basic properties")
-    @Sql(scripts = "/expectedEnquiry_remove.sql", executionPhase = AFTER_TEST_METHOD) //removing enquiry from DB
+    @Sql(scripts = "/enquiry_repository_layer_test_2_remove_expectedEnquiry.sql",
+            executionPhase = AFTER_TEST_METHOD) // removing enquiry from DB
     public void enquiryTest_2(){
 
-
+        testEntityManager.persist(user);
         testEntityManager.persist(expectedEnquiry);
         testEntityManager.flush();
 
-        Enquiry actualEnquiry = enquiryRepository.findById(enquiryRepository.findAll().size()); // finds last added
+        // finds last added
+        Enquiry actualEnquiry = enquiryRepository.findById(enquiryRepository.findAll().size());
 
         assertAll("save/find basic properties",
             () -> assertEquals(
-                expectedEnquiry.getName(), actualEnquiry.getName(), "enquiry name incorrect"),
+                expectedEnquiry.getName(), actualEnquiry.getName(),
+                    "enquiry name incorrect"),
             () -> assertEquals(
-                    expectedEnquiry.getEmail(), actualEnquiry.getEmail(), "enquiry email incorrect"),
-            () -> assertEquals(expectedEnquiry.getPhone(), actualEnquiry.getPhone(), "enquiry phone incorrect"),
-            () -> assertEquals(expectedEnquiry.getMessage(), actualEnquiry.getMessage(), "enquiry message " +
-                        "incorrect"),
-            () -> assertEquals(expectedEnquiry.getIsbn(), actualEnquiry.getIsbn(), "enquiry isbn incorrect"),
-            () -> assertEquals(expectedEnquiry.getPolygon(), actualEnquiry.getPolygon(), "enquiry polygon incorrect"),
-            () -> assertEquals(expectedEnquiry.getStatus(), actualEnquiry.getStatus(), "enquiry status incorrect"),
-            () -> assertEquals(expectedEnquiry.getType(), actualEnquiry.getType(), "enquiry type incorrect"));
+                    expectedEnquiry.getEmail(), actualEnquiry.getEmail(),
+                    "enquiry email incorrect"),
+            () -> assertEquals(expectedEnquiry.getPhone(), actualEnquiry.getPhone(),
+                    "enquiry phone incorrect"),
+            () -> assertEquals(expectedEnquiry.getMessage(), actualEnquiry.getMessage(),
+                    "enquiry message incorrect"),
+            () -> assertEquals(expectedEnquiry.getIsbn(), actualEnquiry.getIsbn(),
+                    "enquiry isbn incorrect"),
+            () -> assertEquals(expectedEnquiry.getPolygon(), actualEnquiry.getPolygon(),
+                    "enquiry polygon incorrect"),
+            () -> assertEquals(expectedEnquiry.getStatus(), actualEnquiry.getStatus(),
+                    "enquiry status incorrect"),
+            () -> assertEquals(expectedEnquiry.getType(), actualEnquiry.getType(),
+                    "enquiry type incorrect"));
 
     }
 
     @Test
     @DisplayName("EnquiryRepository, save/fetch collection properties")
-    @Sql(scripts = "/enquiry_test.sql", executionPhase = BEFORE_TEST_METHOD)
+    @Sql(scripts = "/enquiry_repository_layer_test_3_add_testEnquiry.sql",
+            executionPhase = BEFORE_TEST_METHOD)
     public void enquiryTest_3(){
 
-        Enquiry enquiryFromSqlFile  = enquiryRepository.findFirstByName("Enquiry Test");
-
+        testEntityManager.persist(user);
         testEntityManager.persist(expectedEnquiry);
         testEntityManager.flush();
+
+        Enquiry enquiryFromSqlFile  = enquiryRepository.findFirstByName("Enquiry Test");
 
         Enquiry actualEnquiry1 = enquiryRepository.findById(5); // from data.sql
         Enquiry actualEnquiry2 = enquiryRepository.findById(7); // from data.sql
