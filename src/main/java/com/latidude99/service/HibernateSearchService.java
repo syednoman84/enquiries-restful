@@ -108,7 +108,7 @@ public class HibernateSearchService {
         javax.persistence.Query jpaQuery =
                 fullTextEntityManager.createFullTextQuery(luceneQuery, Enquiry.class);
 
-        // executes search and return results (sorted by relevance as default)
+        // executes search and returns results (sorted by relevance as default)
         @SuppressWarnings("unchecked")
         List<Enquiry> enquiryList = jpaQuery.getResultList();
 

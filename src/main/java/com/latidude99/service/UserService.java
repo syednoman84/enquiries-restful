@@ -97,7 +97,11 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-
+    /*
+     * Takes users loaded in DB from data.sql and saves them back to DB
+     * encoding passwords and ensuring that they are activated and with
+     * the right priviledges.
+     */
     public void addDbUser(Role role) {
         UserRole dbRole = roleRepository.findByRole(role.getText());
         Set<UserRole> dbRoles = new HashSet<>();

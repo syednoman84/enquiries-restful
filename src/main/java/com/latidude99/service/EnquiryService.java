@@ -235,6 +235,7 @@ public class EnquiryService {
      */
     public List<Enquiry> sortProgressUsers(List<Enquiry> enquiries) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+
         for (Enquiry enquiry : enquiries) {
             Map<java.util.Date, User> map = enquiry.getProgressUser();
             Map<java.util.Date, User> mapSorted = map.entrySet().stream()
@@ -303,6 +304,11 @@ public class EnquiryService {
         return sortBy;
     }
 
+    /*
+     * Sorts enquiry list according to the column headers,
+     * - 1st click - if not sorted before sorts ascending otherwise the opposite way to existing sorting
+     * - 2nd click - sorts the opposite way to the existing sorting
+     */
     public List<Enquiry> sortBy(List<Enquiry> enquiries, String sortBy) {
         Comparator<Enquiry> comparatorAsc;
         Comparator<Enquiry> comparatorDesc;
@@ -372,7 +378,7 @@ public class EnquiryService {
     }
 
     /*
-     * Updates enquiry status upon change in enquiry list view
+     * Updates enquiry status in enquiry list view, upon change on the enquiry page
      */
     public List<Enquiry> updateEnquiryListToView(
             List<Enquiry> enquiryList, long enquiryId, String status) {
@@ -423,11 +429,8 @@ public class EnquiryService {
         ZonedDateTime startDate = stringToZonedDateTimeConverter(dateRange[0].trim());
         ZonedDateTime endDate = stringToZonedDateTimeConverter(dateRange[1].trim());
 
-        // sets other criteria
+        // sets enquiry properties to be included in the search
         String searchIn = searchWrapper.getSearchIn();
-        String status = searchWrapper.getStatus();
-        String sortBy = searchWrapper.getSortBy();
-        String direction = searchWrapper.getDirection();
 
         // sets and executes the search type
         List<Enquiry> resultListTemp = new ArrayList<>();
@@ -436,7 +439,7 @@ public class EnquiryService {
         if (("".equals(searchWrapper.getSearchFor())) || (searchWrapper.getSearchFor() == null)) {
             resultListTemp = enquiryRepository.findAllByCreatedDateBetween(startDate, endDate);
 
-            // custom search based on enquiry properties
+            // custom search for the exact match in enquiry properties
         } else if (option.equals("exact")) {
             String searchForWithSpaces = " " + searchFor + " ";
             switch (searchIn) {
@@ -476,7 +479,7 @@ public class EnquiryService {
                             .collect(Collectors.toList());
             }
 
-        // Hibernate full text search
+        // wildcard (*) string search in enquiry properties
         } else if (option.equals("fuzzy")) {
             switch (searchIn) {
                 case "in customer names":
