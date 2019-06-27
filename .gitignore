@@ -5,6 +5,7 @@ IGNORE_enquiries/
 IGNORE/
 
 test.properties_gitignore
+test.properties_clean
 application.properties_gitignore
 application.properties_clean
 
