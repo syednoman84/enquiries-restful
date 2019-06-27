@@ -21,14 +21,15 @@
 
 package com.latidude99.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.latidude99.model.Enquiry;
+import com.latidude99.util.AttachmentStatsRest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.latidude99.model.Attachment;
 import com.latidude99.repository.AttachmentRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -46,5 +47,27 @@ public class AttachmentService {
         return attachmentRepository.findAll();
     }
 
+    public List<AttachmentStatsRest> getEnquiryAttachmentsStats(Enquiry enquiry){
+        List<AttachmentStatsRest> attachmentsStatsRests = new ArrayList<>();
+        for(Attachment attachment : enquiry.getAttachments()){
+            AttachmentStatsRest attachmentStatsRest = new AttachmentStatsRest(enquiry, attachment);
+            attachmentsStatsRests.add(attachmentStatsRest);
+        }
+        return attachmentsStatsRests;
+    }
+
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

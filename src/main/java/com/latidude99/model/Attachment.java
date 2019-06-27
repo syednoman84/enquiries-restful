@@ -21,6 +21,8 @@
 
 package com.latidude99.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -52,6 +54,7 @@ public class Attachment implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "enquiry_id")
+    @JsonBackReference(value="enquiry-attachments")
     private Enquiry enquiry;
 
     public Attachment() {
@@ -61,6 +64,13 @@ public class Attachment implements Serializable {
         this.name = name;
         this.mimetype = mimetype;
         this.file = file;
+    }
+
+    public Attachment(long id, String name, String mimetype, long size) {
+        this.id = id;
+        this.name = name;
+        this.mimetype = mimetype;
+        this.size = size;
     }
 
 

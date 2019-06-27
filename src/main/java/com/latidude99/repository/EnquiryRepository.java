@@ -39,6 +39,8 @@ public interface EnquiryRepository extends JpaRepository<Enquiry, Long> {
 
     Enquiry findFirstByName(String name);
 
+    Enquiry findLastByName(String name);
+
     List<Enquiry> findAll();
 
     List<Enquiry> findByIdIn(List<Long> list);

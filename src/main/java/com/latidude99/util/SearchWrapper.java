@@ -21,6 +21,7 @@
 
 package com.latidude99.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -44,6 +45,19 @@ public class SearchWrapper {
     private String closingUser;
   //  private String customer;
 
+    public SearchWrapper(){
+        searchFor = "";
+        selector = "";
+        limit = 0;
+        searchIn = "";
+        status = "all";
+        dateRange = "";
+        sortBy = "";
+        direction = "";
+        userList = new ArrayList<>();
+        assignedUser = "any user";
+        closingUser = "any user";
+    }
 
     public String getAssignedUser() {
         return assignedUser;

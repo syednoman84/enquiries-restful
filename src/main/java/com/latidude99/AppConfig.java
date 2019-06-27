@@ -23,12 +23,14 @@ package com.latidude99;
 
 import javax.transaction.Transactional;
 
+import com.latidude99.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.latidude99.model.Role;
@@ -36,7 +38,7 @@ import com.latidude99.service.EnquiryService;
 import com.latidude99.service.UserService;
 import com.latidude99.util.EnquiryListWrapper;
 
-@Profile("!test")
+//@Profile("!test")
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
@@ -58,9 +60,7 @@ public class AppConfig implements WebMvcConfigurer {
         userService.addDbUser(Role.ADMIN);
         userService.addDbUser(Role.DEFAULT);
 
-        /*
-         * Adds progress users to display in sample enquiries
-         */
+        // adds progress users to display in sample enquiries
         enquiryService.addProgressUser(13L, 1L);
         enquiryService.addProgressUser(14L, 1L);
 
@@ -70,6 +70,13 @@ public class AppConfig implements WebMvcConfigurer {
     @Bean
     public EnquiryListWrapper createEnquiryListWrapper() {
         return new EnquiryListWrapper();
+    }
+
+    @Bean
+    DispatcherServlet dispatcherServlet () {
+        DispatcherServlet ds = new DispatcherServlet();
+        ds.setThrowExceptionIfNoHandlerFound(true);
+        return ds;
     }
 
 

@@ -21,6 +21,8 @@
 
 package com.latidude99.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.time.Instant;
@@ -88,6 +90,7 @@ public class User implements Serializable {
     @ManyToMany(mappedBy = "progressUser",
             cascade = CascadeType.PERSIST,
             fetch = FetchType.EAGER)
+    @JsonBackReference(value="enquiry-progressUser")
     private List<Enquiry> enquiriesProgress = new ArrayList<>();
 
     // enquiries that user has closed
@@ -95,6 +98,7 @@ public class User implements Serializable {
             fetch = FetchType.EAGER,
             cascade = {CascadeType.MERGE, CascadeType.REMOVE},
             orphanRemoval = true)
+    @JsonBackReference(value="enquiry-closingUser")
     private List<Enquiry> enquiriesClosed = new ArrayList<>();
 
 

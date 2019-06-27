@@ -4,7 +4,9 @@
 IGNORE_enquiries/
 IGNORE/
 
-application.properties
+test.properties_gitignore
+application.properties_gitignore
+application.properties_clean
 
 dataindexdefault/
 !enquiries_v1.2.0.jar

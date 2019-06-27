@@ -84,6 +84,10 @@ public class EnquiryService {
     }
 
     public Enquiry getFirstByName(String name){
+        return enquiryRepository.findLastByName(name);
+    }
+
+    public Enquiry getLastByName(String name){
         return enquiryRepository.findFirstByName(name);
     }
 
@@ -126,6 +130,21 @@ public class EnquiryService {
         return enquiry;
     }
 
+    /*
+     * Used in EnquiryControllerRest
+     */
+    public Enquiry saveComment(String message, int enquiryId, String userName) {
+        User user = userRepository.findByEmail(userName);
+        Enquiry enquiry = enquiryRepository.findById(enquiryId);
+        Comment comment = new Comment();
+        comment.setUserId(user.getId());
+        comment.setUserName(user.getName());
+        comment.setContent(message);
+        comment.setDate(ZonedDateTime.now());
+        enquiry.addComment(comment);
+        return enquiry;
+    }
+
     public List<Enquiry> getRecent100Sorted() {
         List<Enquiry> recent100 =
                 sortProgressUsers(enquiryRepository.findFirst100ByOrderByCreatedDateDesc());
@@ -145,7 +164,10 @@ public class EnquiryService {
     }
 
     public List<Enquiry> getByStatus(String status) {
-        List<Enquiry> listByStatus = sortProgressUsers(enquiryRepository.findByStatus(status));
+        List<Enquiry> listByStatus  = new ArrayList<>();
+        if(!"waiting".equals(status) && !"in progress".equals(status) && !"closed".equals(status))
+            return listByStatus;
+        listByStatus = sortProgressUsers(enquiryRepository.findByStatus(status));
         return listByStatus;
     }
 
@@ -200,8 +222,8 @@ public class EnquiryService {
             notValid = 0;
             for (int i = 0; i < s.length(); i++) {
                 if (!(s.substring(i, i+1).matches("[0-9]+")
-                        || s.substring(i, i+1).matches("-"))) // not sure why it worked without this
-                    notValid++;                                     // for range (the whole app not tests)
+                        || s.substring(i, i+1).matches("-")))
+                    notValid++;
             }
             if (!s.isEmpty() && notValid < 1) numbersList.add(s);
         }
@@ -296,11 +318,14 @@ public class EnquiryService {
      * Converts searchWrapper sorting field names to the existing method used for sorting
      */
     private String searchSortByConverter(SearchWrapper searchWrapper) {
-        String sortBy = "creation date";
-        if ("closing date".equals(searchWrapper.getSortBy())) sortBy = "closed";
+        String sortBy = "creation date"; // default
+        if ("closing date".equals(searchWrapper.getSortBy())
+                || "closed".equals(searchWrapper.getSortBy())) sortBy = "closed";
         if ("status".equals(searchWrapper.getSortBy())) sortBy = "status";
-        if ("customer's name".equals(searchWrapper.getSortBy())) sortBy = "name";
-        if ("customer's email".equals(searchWrapper.getSortBy())) sortBy = "email";
+        if ("customer's name".equals(searchWrapper.getSortBy())
+                || "name".equals(searchWrapper.getSortBy())) sortBy = "name";
+        if ("customer's email".equals(searchWrapper.getSortBy())
+                || "email".equals(searchWrapper.getSortBy())) sortBy = "email";
         return sortBy;
     }
 
@@ -395,6 +420,18 @@ public class EnquiryService {
             return enquiryList;
         }
 
+    }
+
+    public void logSearchParameters(Logger logger, SearchWrapper searchWrapper){
+        logger.info("SearchFor-> " + searchWrapper.getSearchFor());
+        logger.info("SearchIn-> " + searchWrapper.getSearchIn());
+        logger.info("Limit-> " + searchWrapper.getLimit());
+        logger.info("DateRange-> " + searchWrapper.getDateRange());
+        logger.info("AssignedUser-> " + searchWrapper.getAssignedUser());
+        logger.info("ClosingUser-> " + searchWrapper.getClosingUser());
+        logger.info("Status-> " + searchWrapper.getStatus());
+        logger.info("SortBy-> " + searchWrapper.getSortBy());
+        logger.info("Direction-> " + searchWrapper.getDirection());
     }
 
 

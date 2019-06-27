@@ -21,6 +21,8 @@
 
 package com.latidude99.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import javax.persistence.Entity;
@@ -45,6 +47,7 @@ public class Comment implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "enquiry_id")
+    @JsonBackReference(value="enquiry-comments")
     private Enquiry enquiry;
 
     public Comment() {

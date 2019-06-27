@@ -21,6 +21,7 @@
 
 package com.latidude99.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.search.annotations.*;
@@ -95,6 +96,7 @@ public class Enquiry implements Serializable {
             cascade = {CascadeType.ALL},
             orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.FALSE) // this works for tests
+    @JsonManagedReference(value="enquiry-comments")
     private List<Comment> comments = new ArrayList<>();
 
     /*
@@ -114,6 +116,7 @@ public class Enquiry implements Serializable {
             cascade = {CascadeType.ALL},
             orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.FALSE) // this works for tests`
+    @JsonManagedReference(value="enquiry-attachments")
     private List<Attachment> attachments = new ArrayList<>();
 
 
@@ -137,10 +140,12 @@ public class Enquiry implements Serializable {
     @ManyToMany(fetch = FetchType.EAGER,
             cascade = CascadeType.MERGE)  // PERSIST throws 'detached entity' exception in tests
     @MapKeyTemporal(TemporalType.TIMESTAMP)
+//    @JsonManagedReference(value="enquiry-progressUser")
     private Map<java.util.Date, User> progressUser = new TreeMap<>();
 
     @ManyToOne
     @JoinColumn(name = "user_closing_id")
+//    @JsonManagedReference(value="enquiry-closingUser")
     private User closingUser;
 
     /*

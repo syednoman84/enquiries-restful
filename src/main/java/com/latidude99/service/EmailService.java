@@ -85,6 +85,24 @@ public class EmailService {
         emailSender.send(message);
     }
 
+    public void sendSimpleMessage(Enquiry enquiry, String email) throws MessagingException {
+        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(
+                message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+
+        Context context = new Context();
+        context.setVariable("enquiry", enquiry);
+        String html = templateEngine.process("enquiryPageEmail", context);
+
+        helper.setTo(email);
+        helper.setText(html, true);
+        helper.setSubject("Enquiry " + enquiry.getId() + ", " +
+                enquiry.getName() + ", " + enquiry.getCreatedDate().format(formatter));
+        helper.setFrom("map.centre@gmail.com");
+
+        emailSender.send(message);
+    }
+
 }
 
 

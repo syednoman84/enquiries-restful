@@ -22,6 +22,7 @@
 package com.latidude99.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -66,4 +67,20 @@ public class UserRole implements Serializable {
     public String toString() {
         return "UserRole [id=" + id + ", role=" + role + ", description=" + description + "]";
     }
+
+    // Guava way
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserRole userRole = (UserRole) o;
+        return com.google.common.base.Objects.equal(role, userRole.role)
+                && com.google.common.base.Objects.equal(description, userRole.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return com.google.common.base.Objects.hashCode(role, description);
+    }
+
 }
