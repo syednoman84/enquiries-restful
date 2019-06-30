@@ -53,8 +53,8 @@ request parameters:
  - `files` - Multipart[] files, limit for a single file currently set to 2048KB 
  can be changed in`application.properties` (optional)
  
-On submit all the submitted data are saved in DB, including files. Additionally a static image 
-generated from a polygon drawn on Google Maps (if present).
+On submit all the posted data are saved in DB, including files. Additionally a static image 
+generated from a polygon drawn on Google Maps (if present) is saved as well.
 
 ### Attachment API
 
@@ -79,7 +79,7 @@ path variable `id`: file number
 produces: `image/jpeg`  
 response body: `byte[]`  
 
-Fetches a file with a given `id` flagged as a `jpeg` image (easy to display in html)  
+Fetches a file with a given `id` flagged as a `jpeg` image. 
 
 ##### endpoint: `/api/enquiry/attachment/{id}/download`  
 restricted to: `USER` `ADMIN` `APPADMIN`  
@@ -88,7 +88,7 @@ path variable `id`: file number
 produces: `application/octet-stream`  
 response body: `byte[]`  
 
-Fetches a file with a given `id` flagged as a `octet-stream` data (triggers `Save as...` in browsers)
+Fetches a file with a given `id` flagged as a `octet-stream` data.
 
 ##### endpoint: `/api/enquiry/{id}/image`  
 restricted to: `USER` `ADMIN` `APPADMIN`  
@@ -96,7 +96,7 @@ method: `GET`
 path variable `id`: file number  
 response body: `byte[]`  
 
-Fetches the enquiry from drawn polygon as static image (if present)
+Fetches the image made from drawn polygon on top of Google Maps (if present).
 
 
 ### Enquiry List API
