@@ -79,7 +79,7 @@ public class EnquiryFormControllerRest {
                                         @RequestParam String phone,
                                         @RequestParam String isbn,
                                         @RequestParam @NotBlank String type,
-                                        @RequestParam @NotBlank @Size(min=10, max = 20148) String message,
+                                        @RequestParam @NotBlank @Size(min=10, max = 2048) String message,
                                         @RequestParam String polygon,
                                         @RequestParam String polygonencoded,
                                         @RequestParam MultipartFile[] files) {

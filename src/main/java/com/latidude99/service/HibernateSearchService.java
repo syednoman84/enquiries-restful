@@ -87,14 +87,12 @@ public class HibernateSearchService {
                 break;
             case "phraseSlop1":
                 luceneQuery = phraseSlop1Query(searchFor, queryBuilder);
-                System.out.println("Hibernate search, phraseSlop1 -> " + searchFor);
                 break;
             case "phraseSlop2":
                 luceneQuery = phraseSlop2Query(searchFor, queryBuilder);
                 break;
             case "phraseSlop3":
                 luceneQuery = phraseSlop3Query(searchFor, queryBuilder);
-                System.out.println("Hibernate search, phraseSlop3 -> " + searchFor);
                 break;
             case "simpleQueryString":
                 luceneQuery = simpleQueryStringQuery(searchFor, queryBuilder);

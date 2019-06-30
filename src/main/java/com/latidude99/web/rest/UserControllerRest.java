@@ -69,14 +69,6 @@ public class UserControllerRest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @GetMapping(path = "/error/reset")
-    public ResponseEntity<?> errorReset() {
-        ErrorRest errorRest = new ErrorRest(HttpStatus.EXPECTATION_FAILED,
-                "Invalid Reset Token",
-                "not authorized");
-        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(errorRest);
-    }
-
     /*
      * user password update
      */

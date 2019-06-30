@@ -100,7 +100,7 @@ public class EnquiryListControllerRest {
 
 
     /*
-     * Returns user custom number of enquiries
+     * Returns user defined custom number of enquiries
      */
     @GetMapping(path = "/enquiry/list/last/{number}",
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -129,7 +129,7 @@ public class EnquiryListControllerRest {
     }
 
     /*
-     *
+     * Returns enquires based on user relation to it and their status
      */
     @GetMapping(path = "/enquiry/list/user/{fetchBy}",
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -217,41 +217,26 @@ public class EnquiryListControllerRest {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> enquirySearchFull(@RequestParam (defaultValue = "") String searchFor,
-                                               @RequestParam (defaultValue = "all")String searchIn,
                                                @RequestParam (defaultValue = "0") String limit,
                                                @RequestParam (defaultValue = "") String dateRange,
-                                               @RequestParam (defaultValue = "any user") String assignedUser,
-                                               @RequestParam (defaultValue = "any user") String closingUser,
-                                               @RequestParam (defaultValue = "all") String status,
-                                               @RequestParam (defaultValue = "creation date") String sortBy, // default
-                                               @RequestParam (defaultValue = "ascending") String direction,
                                                @RequestParam (defaultValue = "keywordWildcard") String selector
                                         ) {
-        SearchWrapper searchWrapper = new SearchWrapper();
-        searchWrapper.setSearchFor(searchFor);
-        searchWrapper.setSearchIn(searchIn);
-        searchWrapper.setDateRange(dateRange);
-        searchWrapper.setAssignedUser(assignedUser);
-        searchWrapper.setClosingUser(closingUser);
-        searchWrapper.setStatus(status);
-        searchWrapper.setSortBy(sortBy);
-        searchWrapper.setDirection(direction);
-        searchWrapper.setSelector(selector);
+        int limitInt;
         try{
-            searchWrapper.setLimit(Integer.parseInt(limit));
+            limitInt = Integer.parseInt(limit);
         }catch(NumberFormatException e){
             ErrorRest errorRest = new ErrorRest(HttpStatus.EXPECTATION_FAILED,
                     "request parameter 'limit is not a valid integer",
                     e.getLocalizedMessage());
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(errorRest);
         }
-        logger.info("SearchFor-> " + searchWrapper.getSearchFor());
-        logger.info("Limit-> " + searchWrapper.getLimit());
-        logger.info("DateRange-> " + searchWrapper.getDateRange());
+        logger.info("SearchFor-> " + searchFor);
+        logger.info("Limit-> " + limitInt);
+        logger.info("DateRange-> " + dateRange);
 
         List<Enquiry> enquiryListSearchResult =
-                searchService.hibernateSearch(searchWrapper.getSelector(),
-                searchWrapper.getSearchFor(), searchWrapper.getLimit(), searchWrapper.getDateRange());
+                searchService.hibernateSearch(selector,
+                        searchFor, limitInt, dateRange);
 
         return  ResponseEntity.ok(enquiryListSearchResult);
     }

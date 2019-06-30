@@ -248,7 +248,7 @@ public class AdminControllerRest {
                     userToUpdate.setBlocked(true);
                     userService.save(userToUpdate);
                 }
-            }else{ // in case @Secured is removed
+            }else{ // in case @PreAuth0rize is removed
                 ErrorRest errorRest = new ErrorRest(HttpStatus.FORBIDDEN,
                         "Your priviledges: " + userService.rolesToString2(currentUser) +
                                 " do not allow for this operation",

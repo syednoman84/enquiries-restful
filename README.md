@@ -3,7 +3,7 @@
 [![](https://img.shields.io/badge/release-1.2-blue.svg)](https://github.com/latidude99/enquiries/tree/master/release)
 
 RESTful API for the **enquiries** project. The original project makes use of
- Thymeleaf v.3 template engine and Bootstrap v.4 for frontend.
+ Thymeleaf v.3 template engine and Bootstrap v.4 for the frontend.
 
 Please refer for a detailed description to the original project
  ( repository  [enquiries](https://github.com/latidude99/enquiries.git))
@@ -14,6 +14,13 @@ Please refer for a detailed description to the original project
 
 ## Table of contents
 * [REST API](#rest-api)
+  - [Enquiry Form API](###enquiry-form-api)
+  - [Attachment API](###attachment-api)
+  - [Enquiry List API](###enquiry-list-api)
+  - [Enquiry Page API](###enquiry-page-api)
+  - [IO API](###io-api)
+  - [USER API](###user-api)
+  - [ADMIN API](###admin-api)
 * [Technologies](#technologies)
 * [Tests](#tests)
 * [Status](#status)
@@ -224,6 +231,79 @@ for detailed explanation.
 
 ### Enquiry Page API
 
+
+##### endpoint: `/api/enquiry/{id}`  
+restricted to: `USER` `ADMIN` `APPADMIN`  
+method: `GET`  
+produces: `application/json`
+
+Fetches an enquiry with the `id`.
+
+##### endpoint: `/api/enquiry/{id}/comment`  
+restricted to: `USER` `ADMIN` `APPADMIN`  
+method: `POST`  
+consumes: `application/x-www-form-urlencoded`  
+produces: `application/json`  
+path variable: `id` - enquiry `id` that the `comment` belongs to  
+request parameters: 
+ - `comment` - text of the user's comment  
+ 
+Returns the enquiry that the comment was successfully added to.
+
+##### endpoint: `/api/enquiry/{id}/email`  
+restricted to: `USER` `ADMIN` `APPADMIN`  
+method: `POST`  
+consumes: `application/x-www-form-urlencoded`  
+produces: `application/json`  
+path variable: `id` - enquiry `id` that is being emailed 
+request parameters: 
+ - `email` - optional, default value: logged in user `email`  
+ 
+Returns the enquiry that was emailed successfully.
+
+##### endpoint: `/api/enquiry/{id}/assign`  
+restricted to: `USER` `ADMIN` `APPADMIN`  
+method: `GET`  
+produces: `application/json`
+path variable: `id` - enquiry `id` that is being assigned 
+
+Assigns the enquiry to the logged in user. Changes the enquiry status to `opened`/`in progress` 
+(if it was not). Returns updated enquiries stats  - info about number of enquiries marked as:  
+     `waiting` | `opened`/`in progress` | `closed` | `closedByUser` | `assignedToUser` 
+
+##### endpoint: `/api/enquiry/{id}/deassign`  
+restricted to: `USER` `ADMIN` `APPADMIN`  
+method: `GET`  
+produces: `application/json`
+path variable: `id` - enquiry `id` that is being de-assigned 
+
+De-assigns the enquiry from the logged in user. Changes the enquiry status to `closed`
+(if there are no assigned users any more). 
+Returns updated enquiries stats  - info about number of enquiries marked as:  
+     `waiting` | `opened`/`in progress` | `closed` | `closedByUser` | `assignedToUser` 
+
+##### endpoint: `/api/enquiry/{id}/close`  
+restricted to: `USER` `ADMIN` `APPADMIN`  
+method: `GET`  
+produces: `application/json`
+path variable: `id` - enquiry `id` that is being closed 
+
+Changes the enquiry status to `closed` with the logged in user as a closingUser.
+Returns updated enquiries stats  - info about number of enquiries marked as:  
+     `waiting` | `opened`/`in progress` | `closed` | `closedByUser` | `assignedToUser` 
+
+##### endpoint: `/api/enquiry/{id}/open`  
+restricted to: `USER` `ADMIN` `APPADMIN`  
+method: `GET`  
+produces: `application/json`
+path variable: `id` - enquiry `id` that is being opened 
+
+Changes the enquiry status to `opened`/`in progress` without assigning the logged in user.
+Returns updated enquiries stats  - info about number of enquiries marked as:  
+     `waiting` | `opened`/`in progress` | `closed` | `closedByUser` | `assignedToUser` 
+
+
+
 ### IO API
 
 ##### endpoint: `/api/enquiry/list/pdf`  
@@ -248,7 +328,8 @@ Returns the enquiry with the given `id` as a PDF file.
 ##### endpoint: `/api/user/activate`  
 restricted to: `no restrictions`  
 method: `GET`  
-request parameter: `activationToken` (URL encoded)
+request parameters:
+ - `activationToken` (URL encoded)
 
 Activates users after following a link with a token sent to them.
 Returns Http status code `202 /ACCEPTED` if succesful or `417 /EXPECTATION_FAILED` if failed.
@@ -291,7 +372,7 @@ request parameters:
 
 Sends an email with a reset token (forgot password form) and fetches the user.
 Returns Http status code `200 /OK` if succesful or `404 /NOT_FOUND` if there is no user
-with submitted email address or 417 /EXPECTATION_FAILED` if an error ocurred during 
+with submitted email address or `417 /EXPECTATION_FAILED` if an error ocurred during 
 sending the email.
 
 
@@ -300,7 +381,7 @@ sending the email.
 ##### endpoint: `/api/admin/{userId}/priviledges/add`  
 restricted to: `ADMIN` `APPADMIN`  
 method: `POST`
-path variable `userId`: 
+path variable `userId` 
 request parameters: `priviledges` - as `List<String>`
 
 Add rights to users with given `userId`.  
@@ -312,13 +393,13 @@ Rules:
  - `APPADMIN` can add `ADMIN` and`APPADMIN` to `USER` and`ADMIN`
  
 Returns Http status code `202 /ACCEPTED` if succesful or `404 /NOT_FOUND` if there is no user
-with submitted `userId` or 403 /FORBIDDEN` if the logged in user doesn't have sufficient rights 
+with submitted `userId` or `403 /FORBIDDEN` if the logged in user doesn't have sufficient rights 
 for the operation.
 
 ##### endpoint: `/api/admin/{userId}/priviledges/remove`  
 restricted to: `ADMIN` `APPADMIN`  
 method: `POST`
-path variable `userId`: 
+path variable `userId` 
 request parameters: `priviledges` - as `List<String>`
 
 Removes rights from users with given `userId`.  
@@ -330,13 +411,13 @@ Rules:
  - `APPADMIN` can remove `ADMIN` and`APPADMIN` from `ADMIN` and` APPADMIN`
  
 Returns Http status code `202 /ACCEPTED` if succesful or `404 /NOT_FOUND` if there is no user
-with submitted `userId` or 403 /FORBIDDEN` if the logged in user doesn't have sufficient rights 
+with submitted `userId` or `403 /FORBIDDEN` if the logged in user doesn't have sufficient rights 
 for the operation.
 
 ##### endpoint: `/api/admin/{userId}/block`  
 restricted to: `ADMIN` `APPADMIN`  
 method: `POST`
-path variable `userId`: 
+path variable `userId` 
 
 Block (if unblocked) or unblock (if blocked) users with given `userId`.  
 Rules: 
@@ -348,13 +429,13 @@ Rules:
  - `APPADMIN` cannot block/unblock another `APPADMIN`
  
 Returns Http status code `202 /ACCEPTED` if succesful or `404 /NOT_FOUND` if there is no user
-with submitted `userId` or 403 /FORBIDDEN` if the logged in user doesn't have sufficient rights 
+with submitted `userId` or `403 /FORBIDDEN` if the logged in user doesn't have sufficient rights 
 for the operation.
 
 ##### endpoint: `/api/admin/{userId}/disable`  
 restricted to: `ADMIN` `APPADMIN`  
 method: `POST`
-path variable `userId`: 
+path variable `userId` 
 
 Enables/Activates (if disabled) or disables/de-activates (if enabled) users with given `userId`.  
 Rules: 
@@ -366,27 +447,63 @@ Rules:
  - `APPADMIN` cannot enable/disable another `APPADMIN`
  
 Returns Http status code `202 /ACCEPTED` if succesful or `404 /NOT_FOUND` if there is no user
-with submitted `userId` or 403 /FORBIDDEN` if the logged in user doesn't have sufficient rights 
+with submitted `userId` or `403 /FORBIDDEN` if the logged in user doesn't have sufficient rights 
 for the operation.
 
+#### endpoint: `/api/admin/{userId}/reset`  
+restricted to: `ADMIN` `APPADMIN`  
+method: `POST`
+path variable `userId` 
 
+Sends an email with a password reset link and token to users with given `userId`.  
+Rules: 
+ - `USER` is not allowed to use this endpoint at all
+ - logged in users cannot send the reset email to themselves
+ - `ADMIN` can reset `USER` 
+ - `ADMIN` cannot reset `APPADMIN` or ` ADMIN`
+ - `APPADMIN` can reset `USER` or `ADMIN`
+ - `APPADMIN` cannot reset another `APPADMIN`
+ 
+Returns Http status code `202 /ACCEPTED` if succesful or `404 /NOT_FOUND` if there is no user
+with submitted `userId` or `403 /FORBIDDEN` if the logged in user doesn't have sufficient rights 
+for the operation.
 
+#### endpoint: `/api/admin/{userId}/activate`  
+restricted to: `ADMIN` `APPADMIN`  
+method: `POST`
+path variable `userId` 
 
+Sends an email with an activation link and token to users with given `userId`.  
+Rules: 
+ - `USER` is not allowed to use this endpoint at all
+ - logged in users cannot send the activation email to themselves
+ - `ADMIN` can activate `USER` 
+ - `ADMIN` cannot activate `APPADMIN` or ` ADMIN`
+ - `APPADMIN` can activate `USER` or `ADMIN`
+ - `APPADMIN` cannot activate another `APPADMIN`
+ 
+Returns Http status code `202 /ACCEPTED` if succesful or `404 /NOT_FOUND` if there is no user
+with submitted `userId` or `403 /FORBIDDEN` if the logged in user doesn't have sufficient rights 
+for the operation.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#### endpoint: `/api/admin/adduser`  
+restricted to: `ADMIN` `APPADMIN`  
+method: `POST`
+consumes: `multipart/form-data`
+request parameters: 
+ - `name` - required
+ - `email` - required, syntactically valid email address
+ - `role` - optional, default value `USER`, valid options: `USER` | `ADMIN` | `APPADMIN`
+ 
+Rules:
+- `USER` is not allowed to use this endpoint at all
+ - `ADMIN` can create a new `USER` and `ADMIN`
+ - `ADMIN` cannot create a new `APPADMIN`
+ - `APPADMIN` can create a new`USER`, `ADMIN` and `APPADMIN`
+ 
+Returns Http status code `201 /CREATED` if succesful or `409 /CONFLICT` if there is already
+a user with submitted `name` or `email`, or `403 /FORBIDDEN` if the logged in user doesn't 
+have sufficient rights for the operation.
 
 
 # Technologies
@@ -402,7 +519,7 @@ for the operation.
 - Mockito 2.24
 - Rest Assured 4.0.0
 - Json Path 4.0
-- Eclipse / STS 3.9 , unit tests in IntelliJ IDEA. 
+- IntelliJ IDEA. 
 
 # Tests
 

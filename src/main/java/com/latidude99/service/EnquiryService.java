@@ -165,16 +165,23 @@ public class EnquiryService {
 
     public List<Enquiry> getByStatus(String status) {
         List<Enquiry> listByStatus  = new ArrayList<>();
-        if(!"waiting".equals(status) && !"in progress".equals(status) && !"closed".equals(status))
+        if(!"waiting".equals(status)
+                && !"in progress".equals(status)
+                && !"opened".equals(status)  // workaround for REST controller (without a space)
+                && !"closed".equals(status))
             return listByStatus;
-        listByStatus = sortProgressUsers(enquiryRepository.findByStatus(status));
+        else{
+            if("in progress".equals(status))
+                status = "opened";
+            listByStatus = sortProgressUsers(enquiryRepository.findByStatus(status));
+        }
         return listByStatus;
     }
 
     public List<Enquiry> getByStatusAndUser(String status, User user) {
         List<Enquiry> listByStatus = sortProgressUsers(enquiryRepository.findByStatus(status));
         List<Enquiry> listByStatusAndUser = new ArrayList<Enquiry>();
-        if ("in progress".equals(status)) {
+        if ("in progress".equals(status) || "opened".equals(status)) {
             listByStatusAndUser = listByStatus.stream().
                     filter(e -> e.getSortedProgressUsers().contains(user))
                     .collect(Collectors.toList());
