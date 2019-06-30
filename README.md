@@ -5,8 +5,8 @@
 RESTful API for the **enquiries** project. The original project makes use of
  Thymeleaf v.3 template engine and Bootstrap v.4 for the frontend.
 
-Please refer for a detailed description to the original project
- ( repository  [enquiries](https://github.com/latidude99/enquiries.git))
+Please refer to the original project for a detailed description:
+  repository  [enquiries](https://github.com/latidude99/enquiries.git)
  
  This repository contains RESTful API only.
 
@@ -14,13 +14,13 @@ Please refer for a detailed description to the original project
 
 ## Table of contents
 * [REST API](#rest-api)
-  - [Enquiry Form API](###enquiry-form-api)
-  - [Attachment API](###attachment-api)
-  - [Enquiry List API](###enquiry-list-api)
-  - [Enquiry Page API](###enquiry-page-api)
-  - [IO API](###io-api)
-  - [USER API](###user-api)
-  - [ADMIN API](###admin-api)
+  - [enquiry form api](#enquiry-form-api)
+  - [attachment api](#attachment-api)
+  - [enquiry list api](#enquiry-list-api)
+  - [enquiry page api](#enquiry-page-api)
+  - [io api](#io-api)
+  - [user api](#user-api)
+  - [admin api](#admin-api)
 * [Technologies](#technologies)
 * [Tests](#tests)
 * [Status](#status)
