@@ -3,6 +3,9 @@
 ##########################
 IGNORE_enquiries/
 IGNORE/
+_IGNORE/
+images
+
 
 test.properties_gitignore
 test.properties_clean
@@ -10,7 +13,8 @@ application.properties_gitignore
 application.properties_clean
 
 dataindexdefault/
-!enquiries_v1.2.0.jar
+FolderBackupTool_v0.3.jar
+FolderBackupTool_v0.3.bat
 
 ##########################
 ## Java
