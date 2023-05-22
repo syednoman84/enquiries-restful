@@ -106,7 +106,7 @@ public class EnquiryFormRestIntegrationTests_MockMvc {
                         .file(secondFile)
                         .file(thirdFile)
                         .with(csrf())
-                        .param("name", "API Integration Test")
+                        .param("name", "Noman API Integration Test")
                         .param("email", "api_integration@test.com")
                         .param("phone", "1234567890")
                         .param("isbn", "")
@@ -118,7 +118,7 @@ public class EnquiryFormRestIntegrationTests_MockMvc {
                                 "EflAroGtcAln@nwD`yC~zK}Fn`Gk}B`{@kcH_")) //not a real encoded polygon
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name", Matchers.is("API Integration Test")))
+                .andExpect(jsonPath("$.name", Matchers.is("Noman API Integration Test")))
                 .andExpect(jsonPath("$.email", Matchers.is("api_integration@test.com")))
                 .andExpect(jsonPath("$.phone", Matchers.is("1234567890")))
                 .andExpect(jsonPath("$.isbn", Matchers.is("")))
@@ -149,7 +149,7 @@ public class EnquiryFormRestIntegrationTests_MockMvc {
 
         assertAll("enquiry properties",
                 () -> assertEquals(19, enquiryService.getAll().size(), "incorrect enquiries number"),
-                () -> assertEquals("API Integration Test", enquiryPost.getName(),
+                () -> assertEquals("Noman API Integration Test", enquiryPost.getName(),
                 "enquiryPost incorrect name property"),
                 () -> assertEquals("api_integration@test.com", enquiryPost.getEmail(),
                 "enquiryPost incorrect email property"),

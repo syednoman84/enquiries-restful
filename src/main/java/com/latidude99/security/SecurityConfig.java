@@ -64,10 +64,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.httpBasic()
 			.and()
 			.csrf()
-//                .disable() // for RestAssured when login not required
+                .disable() // for RestAssured when login not required
 //                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .csrfTokenRepository(csrfTokenRepository())
-            .and()
+//                .csrfTokenRepository(csrfTokenRepository())
+//            .and()
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
@@ -83,6 +83,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 .antMatchers("/api/user/activate*").permitAll()
 				.antMatchers("/api/user/passwordreset").hasAnyRole("ADMIN","USER","APPADMIN")
 				.antMatchers("/api/enquiry/list").hasAnyRole("ADMIN","USER","APPADMIN")
+//				.antMatchers("/api/enquiry/list").permitAll()
 				.antMatchers("/api/enquiry/page").hasAnyRole("ADMIN","USER","APPADMIN")
 				.antMatchers("/api/enquiry/user").hasAnyRole("ADMIN","USER","APPADMIN")
 				.antMatchers("/api/enquiry/admin").hasAnyRole("ADMIN","USER","APPADMIN")

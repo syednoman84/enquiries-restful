@@ -1,0 +1,480 @@
+{
+	"info": {
+		"_postman_id": "49bb881f-4c38-4d5e-8a42-77a353e7be41",
+		"name": "enquiries-restful",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13380147"
+	},
+	"item": [
+		{
+			"name": "EnquiryFormAPI",
+			"item": [
+				{
+					"name": "postEnquiryForm",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "File Wala",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "penta@gon.com",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Guides",
+									"type": "text"
+								},
+								{
+									"key": "message",
+									"value": "Chalbay sdfsfds fdsfs",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "5719999999",
+									"type": "text"
+								},
+								{
+									"key": "isbn",
+									"value": "aaaaa",
+									"type": "text"
+								},
+								{
+									"key": "polygon",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "polygonencoded",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "files",
+									"type": "file",
+									"src": "/C:/Users/noman.ahmed/Desktop/linux_commands.pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/form",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"form"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AttachmentAPI",
+			"item": [
+				{
+					"name": "getEnquiryAttachmentDetails",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/{{enquiryId}}/attachments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"{{enquiryId}}",
+								"attachments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEnquiryAttachmentFile",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/attachment/{{filenumber}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"attachment",
+								"{{filenumber}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEnquiryAttachmentFileDownload",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/attachment/{{filenumber}}/download",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"attachment",
+								"{{filenumber}}",
+								"download"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEnquiryAttachmentPolygonImage",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/attachment/{{filenumber}}/image",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"attachment",
+								"{{filenumber}}",
+								"image"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "EnquiryListAPI",
+			"item": [
+				{
+					"name": "getEnquiriesList",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEnquiriesListLastN",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/list/last/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"list",
+								"last",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEnquiriesListSearchIds",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/search/ids?ids=2,4,5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"search",
+								"ids"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "2,4,5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEnquiriesListStats",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/list/stats",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"list",
+								"stats"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "get/",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getTerms",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/terms",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"terms"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "enquiryId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "filenumber",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

@@ -25,6 +25,7 @@ import javax.transaction.Transactional;
 
 import com.latidude99.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletPathProvider;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -72,12 +73,12 @@ public class AppConfig implements WebMvcConfigurer {
         return new EnquiryListWrapper();
     }
 
-    @Bean
+/*    @Bean
     DispatcherServlet dispatcherServlet () {
         DispatcherServlet ds = new DispatcherServlet();
         ds.setThrowExceptionIfNoHandlerFound(true);
         return ds;
-    }
+    }*/
 
 
 }
