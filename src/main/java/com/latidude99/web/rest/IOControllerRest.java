@@ -94,6 +94,7 @@ public class IOControllerRest {
 
     }
 
+    // This one is throwing 406 Not acceptable error
     @GetMapping(path = "/enquiry/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<?> enquiryPdf(@PathVariable long id) throws IOException {
 

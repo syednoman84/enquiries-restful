@@ -169,8 +169,23 @@ public class EnquiryListControllerRest {
 
 
     /*
-     * Searches by enquiry/customer properties, single or multiple combination thereof
+     * Searches by enquiry/customer properties, single or multiple combination thereofore
      * (wildcard search with '*' at the end of the search term)
+     * searchFor - optional, default [empty], if no term specified fetches all
+     * limit - limits the result to the given number (last step)
+     * searchIn - optional, default all , valid options:
+     *      in customer names
+     *      in customer emails
+     *      in customer phone numbers
+     *      in customer messages
+     *      in product isbn
+     *      all or any other input - searches in all categories
+     * dateRange - optional, default [empty]
+     * assignedUser - optional, default any user, fetches only enquiries with the logged user marked as assignedUser
+     * closingUser - optional, default any user, fetches only enquiries with the logged user marked as closingUser
+     * status - optional, default all, valid input: waiting | opened | closed
+     * sortBy - optional, default all, valid input: id | name | email | type | created | status | closed
+     * direction - optional, default ascending
      */
     @PostMapping(path = "/enquiry/search/regular",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -212,6 +227,23 @@ public class EnquiryListControllerRest {
 
     /*
      * Full-Text Apache Lucene / Hibernate search
+     * Supported Request Parameters are:
+     *      searchFor - optional, default [empty], if no term specified fetches all
+     *      limit - optional, default no limit, limits the result to the given number (last step)
+     *      dateRange - optional, default [empty]
+     *      selector- optional, default keywordWildcard, valid options:
+     *          keywordExact
+     *          keywordFuzzy1
+     *          keywordFuzzy2
+     *          keywordWildcard
+     *          phraseExact
+     *          phraseSlop1
+     *          phraseSlop2
+     *          phraseSlop3
+     *          simpleQueryString
+     * Returns List<Enquiry>.
+     * Please see HibernateSearchService.java for the options' configuration.
+     * Refer to Hibernate Search Reference Guide 5.9.3 for detailed explanation.
      */
     @PostMapping(path = "/enquiry/search/fulltext",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,

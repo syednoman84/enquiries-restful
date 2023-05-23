@@ -324,6 +324,194 @@
 					"response": []
 				},
 				{
+					"name": "getEnquiriesListSortByName",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    this one is incompleted and not sure how to provide the body in this case. have to analyze the controller.\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/sort/name",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"sort",
+								"name"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEnquiriesSearchRegular",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "searchFor",
+									"value": "Sharon Clarke",
+									"type": "text"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/search/regular",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"search",
+								"regular"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEnquiriesSearchFullText",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "searchFor",
+									"value": "Sharon Clarke",
+									"type": "text"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/search/fulltext",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"search",
+								"fulltext"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEnquiriesListByUserAndStatus",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/list/user/assigned",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"list",
+								"user",
+								"assigned"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "getEnquiriesListSearchIds",
 					"request": {
 						"auth": {
@@ -398,6 +586,1230 @@
 								"enquiry",
 								"list",
 								"stats"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "IOAPI",
+			"item": [
+				{
+					"name": "getEnquiriesListAsPDF",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/list/pdf",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"list",
+								"pdf"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEnquiriesAs PDF-406 Error",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/20/pdf",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"20",
+								"pdf"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "EnquiryPageAPI",
+			"item": [
+				{
+					"name": "getEnquiryById",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postEnquiryCommentById",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "comment",
+									"value": "Simple comment",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/5/comment",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"5",
+								"comment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postEnquiryAssignById",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "comment",
+									"value": "Simple comment",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/19/assign",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"19",
+								"assign"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postEnquiryCloseById",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "comment",
+									"value": "Simple comment",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/19/close",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"19",
+								"close"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postEnquiryOpenById",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "comment",
+									"value": "Simple comment",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/19/open",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"19",
+								"open"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postEnquiryDeAssignById",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "comment",
+									"value": "Simple comment",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/19/deassign",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"19",
+								"deassign"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postEmailEnquiryById-Error",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/enquiry/5/email",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"enquiry",
+								"5",
+								"email"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AdminAPI",
+			"item": [
+				{
+					"name": "postAddUser",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "nomi",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/adduser",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"adduser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postAddUserPrivilege-Error",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "privileges",
+									"value": "ROLE_ADMIN",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/5/privileges/add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"5",
+								"privileges",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postRemoveUserPrivilege-Error",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "privileges",
+									"value": "ROLE_ADMIN",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/5/privileges/remove",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"5",
+								"privileges",
+								"remove"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postBlockUserById",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "privileges",
+									"value": "ROLE_ADMIN",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/5/block",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"5",
+								"block"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postDisableUserById",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "privileges",
+									"value": "ROLE_ADMIN",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/5/disable",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"5",
+								"disable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postResetUserById",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "privileges",
+									"value": "ROLE_ADMIN",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/5/reset",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"5",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postActivateUserById",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "privileges",
+									"value": "ROLE_ADMIN",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/5/activate",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"5",
+								"activate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UserAPI",
+			"item": [
+				{
+					"name": "getActivateUser-Error",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "privileges",
+									"value": "ROLE_ADMIN",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "activationToken",
+									"value": "lksdflsjflss",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/user/activate",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"user",
+								"activate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postForgotUser",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "privileges",
+									"value": "ROLE_ADMIN",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "activationToken",
+									"value": "lksdflsjflss",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/user/forgot",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"user",
+								"forgot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postUpdateUser",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "privileges",
+									"value": "ROLE_ADMIN",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "activationToken",
+									"value": "lksdflsjflss",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "passwordNew",
+									"value": "1100011",
+									"type": "text"
+								},
+								{
+									"key": "passwordOld",
+									"value": "1100011",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/user/update",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"user",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postResetUser-Error",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "privileges",
+									"value": "ROLE_ADMIN",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "activationToken",
+									"value": "lksdflsjflss",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "passwordNew",
+									"value": "1100011",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "passwordOld",
+									"value": "1100011",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "token",
+									"value": "sldjflsjfsd",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "lsdflsjfls",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/user/reset",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"user",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getResetUser-Error",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "1100011",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "latidude99test@gmail.com",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "privileges",
+									"value": "ROLE_ADMIN",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "syednoman84@gmail.com",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "activationToken",
+									"value": "lksdflsjflss",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "passwordNew",
+									"value": "1100011",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "passwordOld",
+									"value": "1100011",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "token",
+									"value": "sldjflsjfsd",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "lsdflsjfls",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/user/reset",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"user",
+								"reset"
 							]
 						}
 					},
